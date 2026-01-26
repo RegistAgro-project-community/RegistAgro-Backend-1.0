@@ -504,7 +504,7 @@ class AuthModel {
                 if(verifyPass){
                     //Criar token de acesso
                     const token = jwt.sign(
-                        {userId: userData.id, type: userData.rule},
+                        {userId: userData.id, rule: userData.rule},
                         process.env.SECRET_KEY!,
                         {expiresIn: "1d"}
                     )
@@ -540,7 +540,7 @@ class AuthModel {
                 if(verifyPass){
                     //Criar token de acesso
                     const token = jwt.sign(
-                        {userId: userData.id, type: userData.rule},
+                        {userId: userData.id, rule: userData.rule},
                         process.env.SECRET_KEY!,
                         {expiresIn: "1d"}
                     )
