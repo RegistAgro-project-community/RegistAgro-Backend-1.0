@@ -4,7 +4,7 @@ import 'dotenv/config'
 
 interface payload{
     userId: string,
-    role: string
+    rule: string
 }
 
 export function auth(req: Request, res: Response, next: NextFunction){
@@ -20,7 +20,7 @@ export function auth(req: Request, res: Response, next: NextFunction){
         const decoded = jwt.verify(token, process.env.SECRET_KEY!) as payload
         req.user = {
             id: decoded.userId,
-            role: decoded.role
+            rule: decoded.rule
         }
         
         next()
