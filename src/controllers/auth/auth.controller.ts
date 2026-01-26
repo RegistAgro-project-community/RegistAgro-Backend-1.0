@@ -5,6 +5,7 @@ import { ruleValidation } from "../../errors/rule.errros";
 import { AuthModel } from "../../model/auth/auth.model";
 import { errors } from "../../errors/controllers.errors";
 import type { Province, Rule } from "../../../generated/prisma/enums";
+import { farmSigninSchema, loginSchema } from "../../utils/schemas/login.zod";
 
 const authModel = new AuthModel()
 
@@ -74,6 +75,72 @@ class AuthController {
             return res.status(200).json(nifResult)
         } catch (error) {
             errors(res)
+        }
+    }
+
+    async createFarmPass(req: Request, res: Response){
+        const farmId = req.user?.id
+
+        try {
+            const { name, email, phone, adress, province, pass1, pass2 } = signupSchema.parse(req.body)
+
+            try {
+                const passResult = await authModel.createFarmPass(farmId!, name, email, phone, province as Province, adress, pass1, pass2)
+
+                if(!passResult.valid){
+                    return res.status(400).json(passResult)
+                }
+
+                return res.status(201).json(passResult)
+            } catch (error) {
+                errors(res)
+            }
+        } catch (error) {
+            zodError(error, res)
+        }
+    }
+
+    async login(req: Request, res: Response){
+        try {
+            const { email, password } = loginSchema.parse(req.body)
+
+            try {
+                const loginResult = await authModel.login(email, password)
+
+                if(!loginResult.valid){
+                    return res.status(400).json(loginResult)
+                }
+
+                res.set("authorization", `Bearer ${loginResult.token}`)
+
+                return res.status(200).json({message: loginResult.message})
+            } catch (error) {
+                errors(res)
+            }
+        } catch (error) {
+            zodError(error, res)
+        }
+    }
+
+    async farmSignIn(req: Request, res: Response){
+        try {
+            const { nif, password } = farmSigninSchema.parse(req.body)
+
+            try {
+                const signInResult = await authModel.farmSignIn(nif, password)
+
+                if(!signInResult.valid){
+                    return res.status(400).json(signInResult)
+                }
+
+                res.set("authorization", `Bearer ${signInResult.token}`)
+
+                return res.status(200).json({message: signInResult.message})
+            } catch (error) {
+                errors(res)
+            }
+        } catch (error) {
+            zodError(error, res)
         }
     }
 }
