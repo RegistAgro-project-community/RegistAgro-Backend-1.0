@@ -23,8 +23,8 @@ function getAllowedActions(userType: UserType | null, resource: string){
 export function authorization(role: string, action: string){
     return (req: Request, res: Response, next: NextFunction) =>{
         //Pegar o tipo de usuário
-        const userType = req.user?.role as Rule | null
-
+        const userType = req.user?.rule as Rule | null
+        console.log(userType)
         //Permissões do usuário atual
         const userPermision = getAllowedActions(userType, role)
         
