@@ -1,0 +1,253 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Province {
+  Luanda
+  Bengo
+}
+
+model Company {
+  id           String   @id @default(uuid())
+  nif          String
+  name         String
+  type         String   @default("farm")
+  location     String
+  province     Province
+  municipality String
+  phone        Int      @unique()
+  email        String   @unique()
+
+  @@map("company")
+}
+
+enum Rule {
+  farm
+  consumer
+  carrier
+}
+
+enum Deleted {
+  active
+  inactive
+  pendent
+}
+
+model Users {
+  id         String      @id @default(uuid())
+  name       String
+  email      String      @unique()
+  phone      String
+  password   String
+  rule       Rule
+  adress     String
+  province   Province
+  created_at DateTime    @default(now())
+  status     Deleted     @default(pendent)
+  profile    String
+  farms      Farms[]
+  consumers  Consumers[]
+  carriers   Carriers[]
+
+  @@map("users")
+}
+
+model Farms {
+  id       String     @id @default(uuid())
+  nif      String     @unique   
+  farm     Users      @relation(fields: [farmId], references: [id])
+  farmId   String
+  products Products[]
+  orders   Orders[]
+
+  @@map("farms")
+}
+
+model Consumers {
+  id         String   @id @default(uuid())
+  consumer   Users    @relation(fields: [consumerId], references: [id])
+  consumerId String
+  orders     Orders[]
+
+  @@map("consumers")
+}
+
+model Carriers {
+  id                 String               @id @default(uuid())
+  carrier            Users                @relation(fields: [carrierId], references: [id])
+  carrierId          String
+  vehicles           Vehicles[]
+  requests_transport Transport_requests[]
+  routes             Routes[]
+
+  @@map("carriers")
+}
+
+enum Stock {
+  kg
+  t
+}
+
+enum ProductsType {
+  frutas
+  vegetais
+  cereais
+  carnes
+  raizes
+  legumes
+}
+
+model Products {
+  id          String       @id @default(uuid())
+  farm        Farms        @relation(fields: [farmId], references: [id])
+  farmId      String
+  name        String
+  description String
+  price       Float
+  stock       Int
+  unit        Stock
+  type        ProductsType
+  created_at  DateTime     @default(now())
+  photo       String
+  status      Deleted      @default(active)
+  orders      Orders[]
+
+  @@map("products")
+}
+
+enum orders_status {
+  pendent
+  confirmed
+  canceled
+}
+
+model Orders {
+  id                 String               @id @default(uuid())
+  consumer           Consumers            @relation(fields: [consumerId], references: [id])
+  consumerId         String
+  farm               Farms                @relation(fields: [farmId], references: [id])
+  farmId             String
+  product            Products             @relation(fields: [productId], references: [id])
+  productId          String
+  value              Float
+  status             orders_status        @default(pendent)
+  created_at         DateTime             @default(now())
+  payments           Payments[]
+  requests_transport Transport_requests[]
+  location           Location[]
+
+  @@map("orders")
+}
+
+enum Payment_status {
+  retained
+  released
+  canceled
+}
+
+model Payments {
+  id         String         @id @default(uuid())
+  order      Orders         @relation(fields: [orderId], references: [id])
+  orderId    String
+  value      Float
+  status     Payment_status @default(retained)
+  created_at DateTime       @default(now())
+
+  @@map("payments")
+}
+
+enum VehiclesType {
+  frigorifico
+  fechado
+  aberto_coberto
+  aberto
+}
+
+model Vehicles {
+  id        String       @id @default(uuid())
+  carrier   Carriers     @relation(fields: [carrierId], references: [id])
+  carrierId String
+  brand     String
+  plate     String
+  type      VehiclesType
+  capacity  Int
+  unit      Stock
+
+  @@map("vehicles")
+}
+
+enum Requests {
+  pendente
+  aceite
+  em_transporte
+  cancelado
+  entregue
+}
+
+model Transport_requests {
+  id           String   @id @default(uuid())
+  order        Orders   @relation(fields: [orderId], references: [id])
+  orderId      String
+  carrier      Carriers @relation(fields: [carrierId], references: [id])
+  carrierId    String
+  status       Requests @default(pendente)
+  start_at     DateTime
+  delivered_at DateTime
+
+  @@map("transport_requests")
+}
+
+enum Duration {
+  dias
+  horas
+}
+
+model Routes {
+  id           String   @id @default(uuid())
+  carrier      Carriers @relation(fields: [carrierId], references: [id])
+  carrierId    String
+  origin       String
+  destination  String
+  capacity     Int
+  unit         Stock
+  duration     Int
+  durationUnit Duration
+
+  @@map("routes")
+}
+
+model Location {
+  id       String   @id @default(uuid())
+  order    Orders   @relation(fields: [orderId], references: [id])
+  orderId  String
+  latitude String
+  altitude String
+  time     DateTime @default(now())
+  active   Boolean  @default(true)
+}
+
+model VerificationCode {
+  id    String   @id @default(uuid())
+  email String
+  code  Int
+  used  Boolean  @default(false)
+  date  DateTime @default(now())
+}
+
+model PendingUser {
+  id       String @id @default(uuid())
+  name     String
+  email    String @unique
+  phone    String @unique
+  rule     Rule
+  adress   String
+  province String
+  password String
+
+  @@map("pendingUser")
+}
