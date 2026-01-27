@@ -494,7 +494,13 @@ class AuthModel {
     async login(email: string, pass: string){
         try {
             const userData = await prisma.users.findUnique({
-                where: {email: email}
+                where: {
+                    email: email,
+                    OR: [
+                        {rule: "carrier"},
+                        {rule: "consumer"}
+                    ]
+                }
             })
 
             if(userData){
@@ -510,6 +516,7 @@ class AuthModel {
                     )
 
                     return {
+                        valid: true,
                         message: "Login efetuado com sucesso",
                         token: token
                     }
