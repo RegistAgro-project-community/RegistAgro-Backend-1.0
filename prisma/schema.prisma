@@ -59,7 +59,7 @@ model Users {
 
 model Farms {
   id       String     @id @default(uuid())
-  nif      String     @unique   
+  nif      String     @unique
   farm     Users      @relation(fields: [farmId], references: [id])
   farmId   String
   products Products[]
@@ -110,6 +110,7 @@ model Products {
   description String
   price       Float
   stock       Int
+  transport   VehiclesType
   unit        Stock
   type        ProductsType
   created_at  DateTime     @default(now())
