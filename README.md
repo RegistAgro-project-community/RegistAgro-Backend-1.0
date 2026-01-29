@@ -27,5 +27,8 @@ npx prisma studio
 # Executar servidor
 npm run api
 
+# Documentação da API
+http://localhost:5500/docs
+
 # Testes da API
 Insomnia
