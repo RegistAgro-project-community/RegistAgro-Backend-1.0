@@ -21,5 +21,7 @@ router.put('/products/update/:id', auth, authorization("farm", "update"), produc
 router.get('/products/farms/getAll', auth, authorization("farm", "read"), productsController.getAll)
 router.get('/products/farms/get/:id', auth, authorization("farm", "read"), productsController.get)
 router.delete('/products/delete/:id', auth, authorization("farm", "delete"), productsController.delete)
+router.get('/products/consumers/getAll/:id', auth, authorization("farm", "read"), productsController.consumerReadAll)
+router.get('/products/consumers/farm/:farmId/product/:id', auth, authorization("farm", "read"), productsController.consumerRead)
 
 export { router }
