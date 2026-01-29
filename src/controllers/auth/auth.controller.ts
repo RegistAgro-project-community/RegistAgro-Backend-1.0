@@ -30,7 +30,7 @@ class AuthController {
                     return res.status(400).json(signupResult)
                 }
 
-                return res.status(200).json(signupResult)
+                return res.status(201).json(signupResult)
 
             } catch (error) {
                 errors(res)
