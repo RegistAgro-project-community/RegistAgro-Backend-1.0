@@ -57,7 +57,8 @@ class AuthModel {
                     OR: [
                         {email: email},
                         {phone: phone}
-                    ]
+                    ],
+                    status: "active"
                 }
             })
 
@@ -93,7 +94,8 @@ class AuthModel {
                             rule: rule,
                             adress: adress,
                             province: province,
-                            password: String(passHash)
+                            password: String(passHash),
+                            status: "pendent"
                         }
                     })
 
@@ -362,6 +364,7 @@ class AuthModel {
                                                 message: "Código verificado com sucesso",
                                                 token: token,
                                                 data: {
+                                                    id: userData.id,
                                                     name: userData.name,
                                                     email: userData.email,
                                                     phone: userData.phone,
