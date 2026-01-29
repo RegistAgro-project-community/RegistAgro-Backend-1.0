@@ -136,6 +136,48 @@ class ProductController {
             errors(res)
         }
     }
+
+    async consumerReadAll(req: Request, res: Response){
+        const farmId = req.params.id
+        
+        try {
+            const getResult = await productModel.getAll(farmId as string)
+
+            if(getResult.info){
+                return res.status(404).json(getResult)
+            }
+            if(getResult.error){
+                return res.status(400).json(getResult)
+            }
+
+            return res.status(200).json(getResult)
+        } catch (error) {
+            errors(res)
+        }
+    }
+
+    async consumerRead(req: Request, res: Response){
+        const { farmId, id: productId } = req.params
+
+        if(!farmId || !productId) {
+            return res.status(400).json({ error: "Parâmetros inválidos" })
+        }
+
+        try {
+            const getResult = await productModel.get(productId as string, farmId as string)
+
+            if(getResult.info){
+                return res.status(404).json(getResult)
+            }
+            if(getResult.error){
+                return res.status(400).json(getResult)
+            }
+
+            return res.status(200).json(getResult)
+        } catch (error) {
+            errors(res)
+        }
+    }
 }
 
 export default new ProductController()
