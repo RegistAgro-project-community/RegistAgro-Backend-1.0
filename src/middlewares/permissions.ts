@@ -12,7 +12,7 @@ function getAllowedActions(userType: UserType | null, resource: string){
 
     //Pegar permissões do usuário
     const permissions = roles[userType][resource as keyof typeof roles[UserType]]
-
+    
     //Caso ele não ter permissão, permissions vai ser um array vazio
     if (!permissions || permissions.includes("no-permission")) {
         return []
@@ -20,23 +20,13 @@ function getAllowedActions(userType: UserType | null, resource: string){
     return permissions
 }
 
-export function authorization(role: string, action: string){
+export function authorization(resource: string, action: string){
     return (req: Request, res: Response, next: NextFunction) =>{
         //Pegar o tipo de usuário
         const userType = req.user?.rule as Rule | null
-        console.log(userType)
-        //Permissões do usuário atual
-        const userPermision = getAllowedActions(userType, role)
         
-        //Verificando se o usuario é role
-        let hasPermission = false
-        if(userType == role){
-            hasPermission = true
-        }
-
-        if(!hasPermission){
-            return res.status(403).json({message: "Acesso negado"})
-        }
+        //Permissões do usuário atual
+        const userPermision = getAllowedActions(userType, resource)
         
         //Verificar se tem permissão 
         if(userPermision.includes(action)){
