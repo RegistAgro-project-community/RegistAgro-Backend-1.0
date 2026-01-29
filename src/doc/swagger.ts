@@ -18,6 +18,8 @@ import { updateProductSchema } from "./schemas/update-product"
 import { getAllProductsPath } from "./paths/getAll-products"
 import { getProductPath } from "./paths/get-product"
 import { deleteProductPath } from "./paths/delete-product"
+import { consumerGetAllProductPath } from "./paths/consumer-getAll-product"
+import { consumerGetAProductPath } from "./paths/consumer-get-product"
 
 const swaggerOptions = {
   definition: {
@@ -53,7 +55,9 @@ const swaggerOptions = {
         ...updateProductPath,
         ...getAllProductsPath,
         ...getProductPath,
-        ...deleteProductPath
+        ...deleteProductPath,
+        ...consumerGetAllProductPath,
+        ...consumerGetAProductPath
     },
 
     components: {
