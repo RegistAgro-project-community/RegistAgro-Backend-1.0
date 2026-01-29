@@ -219,7 +219,7 @@ export class ProductsModel {
                 where: {farmId: userId},
                 select: {id: true}
             })
-
+            
             if(!farmId){
                 return {error: "Informações inválida"}
             }
