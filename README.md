@@ -9,7 +9,9 @@ Node.Js && NPM
 Docker
 
 # Baixe o repositório
+```bash
 git clone https://github.com/RegistAgro-project-community/RegistAgro-Backend-1.0.git
+```
 
 # Instalale as dependencias
 npm install
