@@ -3,6 +3,7 @@ import authController from "../controllers/auth/auth.controller";
 import { auth } from "../middlewares/auth";
 import { authorization } from "../middlewares/permissions";
 import productsController from "../controllers/products.controller";
+import usersController from "../controllers/users.controller";
 
 const router = Router()
 
@@ -23,5 +24,11 @@ router.get('/products/farms/get/:id', auth, authorization("farm", "read"), produ
 router.delete('/products/delete/:id', auth, authorization("farm", "delete"), productsController.delete)
 router.get('/products/consumers/getAll/:id', auth, authorization("farm", "read"), productsController.consumerReadAll)
 router.get('/products/consumers/farm/:farmId/product/:id', auth, authorization("farm", "read"), productsController.consumerRead)
+
+//Users
+router.put('/users/update', auth, usersController.update)
+router.delete('/users/delete', auth, usersController.delete)
+router.post('/users/upload/profile', auth, usersController.profilePhoto)
+router.get('/users/profile', auth, usersController.profile)
 
 export { router }
