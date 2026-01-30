@@ -20,6 +20,12 @@ import { getProductPath } from "./paths/get-product"
 import { deleteProductPath } from "./paths/delete-product"
 import { consumerGetAllProductPath } from "./paths/consumer-getAll-product"
 import { consumerGetAProductPath } from "./paths/consumer-get-product"
+import { userUpdatePath } from "./paths/user-update.path"
+import { updateUserSchema } from "./schemas/update-user.schema"
+import { deleteUserPath } from "./paths/delete-user.path"
+import { userProfilePhotoPath } from "./paths/user-img.path"
+import { userProfilePhotoSchema } from "./schemas/user-img.schema"
+import { userProfilePath } from "./paths/user-profile.path"
 
 const swaggerOptions = {
   definition: {
@@ -40,7 +46,8 @@ const swaggerOptions = {
 
     tags: [
       { name: "Auth", description: "Authentication routes" },
-      { name: "Products", description: "Farm Products"}
+      { name: "Products", description: "Farm Products"},
+      { name: "Users", description: "Users actions routes"}
     ],
 
     paths: {
@@ -57,7 +64,11 @@ const swaggerOptions = {
         ...getProductPath,
         ...deleteProductPath,
         ...consumerGetAllProductPath,
-        ...consumerGetAProductPath
+        ...consumerGetAProductPath,
+        ...userUpdatePath,
+        ...deleteUserPath,
+        ...userProfilePhotoPath,
+        ...userProfilePath
     },
 
     components: {
@@ -75,7 +86,10 @@ const swaggerOptions = {
         ...loginSchema,
         ...createProductSchema,
         ...productPhotoSchema,
-        ...updateProductSchema
+        ...updateProductSchema,
+        ...updateUserSchema,
+        ...userProfilePhotoSchema,
+        ...userProfilePath
       }
     }
   },
