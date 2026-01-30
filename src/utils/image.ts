@@ -17,8 +17,6 @@ export async function image(img: UploadedFile | undefined, url: string, to: "use
     } 
     
     const formatImg = path.extname(img.name).replace(".", "").toLowerCase()
-
-    console.log(formatImg)
     
     if(!formatImg || !formats.includes(formatImg.toLowerCase()!)){
         return {
