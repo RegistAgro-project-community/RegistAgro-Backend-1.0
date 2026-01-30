@@ -1,5 +1,6 @@
 import type { UploadedFile } from "express-fileupload";
 import { upload } from "./upload";
+import path from "path";
 
 interface ImageUploadResult {
     success: boolean,
@@ -10,11 +11,15 @@ interface ImageUploadResult {
 
 export async function image(img: UploadedFile | undefined, url: string, to: "user" | "product"): Promise<ImageUploadResult> {
     const formats = ["jpg", "png", "jpeg", "webp"]
-    const formatImg = img?.name.split(".")[1]
-
+    
     if(!img){
         return {success: false, error: "Nenhuma imagem foi enviada"}
     } 
+    
+    const formatImg = path.extname(img.name).replace(".", "").toLowerCase()
+
+    console.log(formatImg)
+    
     if(!formatImg || !formats.includes(formatImg.toLowerCase()!)){
         return {
             success: false,
