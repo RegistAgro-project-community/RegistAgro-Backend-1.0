@@ -88,8 +88,7 @@ const swaggerOptions = {
         ...productPhotoSchema,
         ...updateProductSchema,
         ...updateUserSchema,
-        ...userProfilePhotoSchema,
-        ...userProfilePath
+        ...userProfilePhotoSchema
       }
     }
   },
