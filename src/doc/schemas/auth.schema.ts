@@ -14,7 +14,7 @@ export const signupSchema = {
             name: { type: "string", example: "Euclénio Cadete" },
             email: { type: "string", example: "eucleniocadete@gmail.com" },
             phone: { type: "string", example: "941877294" },
-            adress: { type: "string", example: "Rangel" },
+            adress: { type: "string", example: "Rangel/C10 de baixo" },
             province: { type: "string", example: "Luanda" },
             pass1: { type: "string", example: "Euclenio@1" },
             pass2: { type: "string", example: "Euclenio@1" }
