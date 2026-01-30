@@ -4,8 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "api": "tsx --watch src/server.ts",
-    "swagger": "node ./src/doc/swagger.ts"
+    "api": "tsx --watch src/server.ts"
   },
   "keywords": [],
   "author": "",
@@ -40,6 +39,7 @@
     "jsonwebtoken": "^9.0.3",
     "morgan": "^1.10.1",
     "nodemailer": "^7.0.12",
+    "open": "^11.0.0",
     "otplib": "^12.0.1",
     "pg": "^8.17.1",
     "redis": "^5.10.0",
