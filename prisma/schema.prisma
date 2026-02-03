@@ -60,6 +60,7 @@ model Users {
 model Farms {
   id       String     @id @default(uuid())
   nif      String     @unique
+  balance    Float      @default(0)
   farm     Users      @relation(fields: [farmId], references: [id])
   farmId   String
   products Products[]
