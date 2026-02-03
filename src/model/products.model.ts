@@ -172,41 +172,72 @@ export class ProductsModel {
 
     async getAll(userId: string){
         try {
-            const farmId = await prisma.farms.findFirst({
+            const farmRow = await prisma.farms.findFirst({
                 where: {farmId: userId},
-                select: {id: true}
+                select: {id: true, balance: true}
             })
 
-            if(!farmId){
+            if(!farmRow){
                 return {error: "Informações inválidas"}
             }
             try {
-                const products = await prisma.products.findMany({
+                const totalProdutos = await prisma.products.count({
                     where: {
-                        farmId: farmId.id,
+                        farmId: farmRow.id,
                         status: "active"
-                    },
-                    select: {
-                        id: true,
-                        name: true,
-                        description: true,
-                        price: true,
-                        stock: true,
-                        unit: true,
-                        transport: true,
-                        type: true,
-                        photo: true,
-                        created_at: true
                     }
                 })
-    
-                if(products.length == 0){
-                    return {info: "Você não ainda não possui nenhum produto"}
+
+                try {
+                    const lowStock = await prisma.products.count({
+                        where: {
+                            farmId: farmRow.id
+                            ,
+                            status: "active",
+                            stock: {lte: 10},
+                            unit: "kg"
+                        }
+                    })
+
+                    try {
+                        const products = await prisma.products.findMany({
+                            where: {
+                                farmId: farmRow.id,
+                                status: "active"
+                            },
+                            select: {
+                                id: true,
+                                name: true,
+                                description: true,
+                                price: true,
+                                stock: true,
+                                unit: true,
+                                transport: true,
+                                type: true,
+                                photo: true,
+                                created_at: true
+                            }
+                        })
+            
+                        if(products.length == 0){
+                            return {info: "Você não ainda não possui nenhum produto"}
+                        }
+            
+                        return {
+                            products: products,
+                            totalProducts: totalProdutos,
+                            balance: `${farmRow.balance}Kz`,
+                            low_stock: lowStock
+                        }
+                    } catch (error) {
+                        return {error: "Não foi possível carregar seus produtos"}
+                    }
+                } catch (error) {
+                    return {error: "Ocorreu um erro inesperado"}
                 }
-    
-                return {products: products}
+
             } catch (error) {
-                return {error: "Não foi possível carregar seus produtos"}
+                return {error: "Ocorreu um erro ao carregar informações"}
             }
         } catch (error) {
             return {error: "Ocorreu um erro ao verificar informações"}
