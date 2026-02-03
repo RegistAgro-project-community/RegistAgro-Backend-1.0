@@ -22,6 +22,8 @@ Vos enviarei pelo WatsApp
 # Principais comandos
 docker-compose up -d
 
+npx prisma db seed
+
 npx prisma generate
 
 npx prisma studio
