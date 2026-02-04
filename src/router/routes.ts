@@ -4,6 +4,7 @@ import { auth } from "../middlewares/auth";
 import { authorization } from "../middlewares/permissions";
 import productsController from "../controllers/products.controller";
 import usersController from "../controllers/users.controller";
+import ordersController from "../controllers/orders.controller";
 
 const router = Router()
 
@@ -30,5 +31,11 @@ router.put('/users/update', auth, usersController.update)
 router.delete('/users/delete', auth, usersController.delete)
 router.post('/users/upload/profile', auth, usersController.profilePhoto)
 router.get('/users/profile', auth, usersController.profile)
+
+//Orders
+router.post('/orders/create/farm/:id', auth, authorization("consumer", "create"), ordersController.create)
+router.get('/orders/farms/getAll', auth, authorization("farm", "read"), ordersController.viewsAll)
+router.patch('/orders/accept/order/:id', auth, authorization("farm", "update"), ordersController.accept)
+router.patch('/orders/reject/order/:id', auth, authorization("farm", "update"), ordersController.reject)
 
 export { router }
