@@ -60,7 +60,7 @@ model Users {
 model Farms {
   id       String     @id @default(uuid())
   nif      String     @unique
-  balance    Float      @default(0)
+  balance  Float      @default(0)
   farm     Users      @relation(fields: [farmId], references: [id])
   farmId   String
   products Products[]
@@ -82,6 +82,7 @@ model Carriers {
   id                 String               @id @default(uuid())
   carrier            Users                @relation(fields: [carrierId], references: [id])
   carrierId          String
+  balance            Float                @default(0)
   vehicles           Vehicles[]
   requests_transport Transport_requests[]
   routes             Routes[]
@@ -126,6 +127,8 @@ enum orders_status {
   pendent
   confirmed
   canceled
+  rejected
+  ongoing
 }
 
 model Orders {
@@ -136,6 +139,8 @@ model Orders {
   farmId             String
   product            Products             @relation(fields: [productId], references: [id])
   productId          String
+  qtd                Int
+  unit               Stock
   value              Float
   status             orders_status        @default(pendent)
   created_at         DateTime             @default(now())
@@ -153,12 +158,14 @@ enum Payment_status {
 }
 
 model Payments {
-  id         String         @id @default(uuid())
-  order      Orders         @relation(fields: [orderId], references: [id])
-  orderId    String
-  value      Float
-  status     Payment_status @default(retained)
-  created_at DateTime       @default(now())
+  id             String         @id @default(uuid())
+  order          Orders         @relation(fields: [orderId], references: [id])
+  orderId        String
+  productValue   Float
+  transportValue Float
+  value          Float
+  status         Payment_status @default(retained)
+  created_at     DateTime       @default(now())
 
   @@map("payments")
 }
