@@ -117,14 +117,14 @@ export class UsersModel {
                     status: "active"
                 },
                 select: {
-                    id: true,
                     name: true,
                     email: true,
                     phone: true,
                     province: true,
                     adress: true,
                     created_at: true,
-                    profile: true
+                    profile: true,
+                    rule: true
                 }
             })
 
@@ -132,9 +132,65 @@ export class UsersModel {
                 return {error: "Informações inválidas"}
             }
 
-            return {
-                message: "Dados carregado com sucesso",
-                data: userRow
+            switch (userRow.rule) {
+                case "carrier":
+                    try {
+                        const carrierId = await prisma.carriers.findFirst({
+                            where: {carrierId: userId}
+                        })
+
+                        if(!carrierId){
+                            return {error: "Informações inválidas"}
+                        }
+
+                        return {
+                            message: "Dados carregado com sucesso",
+                            data: userRow,
+                            id: carrierId.id
+                        }
+                    } catch (error) {
+                        return {error: "Ocorreu um erro inesperado"}
+                    }
+                    break;
+                
+                case "consumer":
+                    try {
+                        const consumerId = await prisma.consumers.findFirst({
+                            where: {consumerId: userId}
+                        })
+
+                        if(!consumerId){
+                            return {error: "Informações inválidas"}
+                        }
+
+                        return {
+                            message: "Dados carregado com sucesso",
+                            data: userRow,
+                            id: consumerId.id
+                        }
+                    } catch (error) {
+                        return {error: "Ocorreu um erro inesperado"}
+                    }
+                    break
+                default:
+                    try {
+                        const farmId = await prisma.farms.findFirst({
+                            where: {farmId: userId}
+                        })
+
+                        if(!farmId){
+                            return {error: "Informações inválidas"}
+                        }
+
+                        return {
+                            message: "Dados carregado com sucesso",
+                            data: userRow,
+                            id: farmId.id
+                        }
+                    } catch (error) {
+                        return {error: "Ocorreu um erro inesperado"}
+                    }
+                    break;
             }
         } catch (error) {
             if(notFound(error)){
