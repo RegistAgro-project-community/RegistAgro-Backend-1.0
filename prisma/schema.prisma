@@ -129,6 +129,7 @@ enum orders_status {
   canceled
   rejected
   ongoing
+  inactive
 }
 
 model Orders {
