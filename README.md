@@ -14,12 +14,15 @@ git clone https://github.com/RegistAgro-project-community/RegistAgro-Backend-1.0
 ```
 
 # Instalale as dependencias
+```bash
 npm install
+```
 
 # Arquivo .env
 Vos enviarei pelo WatsApp
 
 # Principais comandos
+```bash
 docker-compose up -d
 
 npx prisma db seed
@@ -27,9 +30,12 @@ npx prisma db seed
 npx prisma generate
 
 npx prisma studio
+```
 
 # Executar servidor
+```bash
 npm run api
+```
 
 # Documentação da API
 http://localhost:5500/docs
