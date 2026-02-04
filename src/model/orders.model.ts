@@ -1,12 +1,15 @@
-import { id } from "zod/v4/locales";
 import type { Stock } from "../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { notFound } from "../errors/notFound";
 import { paymentSplit } from "../utils/paymentSplit";
 import { Payments } from "./payment.model";
+import { orderPrice } from "../utils/orderPrice";
+import { verifyStock } from "../utils/verifyStock";
+
+const paymentModel = new Payments()
 
 export class OrdersModel {
-    async create(userId: string, farmId: string, name: string, value: number, qtd: number, unit: Stock){
+    async create(userId: string, farmId: string, name: string, qtd: number, unit: Stock){
         try {
             const consumerId = await prisma.consumers.findFirst({
                 where: {consumerId: userId},
@@ -18,25 +21,38 @@ export class OrdersModel {
             }
 
             try {
-                const productId = await prisma.products.findFirst({
+                const productRow = await prisma.products.findFirst({
                     where: {
                         farmId: farmId,
                         name: name,
                         status: "active"
                     },
-                    select: {id: true}
+                    select: {
+                        id: true,
+                        price: true,
+                        stock: true,
+                        unit: true
+                    }
                 })
 
-                if(!productId){
+                if(!productRow){
                     return {info: "Produto não encontrado"}
                 }
+
+                const isValidStock = verifyStock(qtd, unit, productRow.stock, productRow.unit)
+
+                if(!isValidStock){
+                    return {error: "Estoque insuficiente"}
+                }
+
+                const price = orderPrice(productRow.price, qtd, unit)
 
                 try {
                     const isAlreadyRequest = await prisma.orders.findFirst({
                         where: {
                             consumerId: consumerId.id,
                             farmId: farmId,
-                            productId: productId.id,
+                            productId: productRow.id,
                             status: "pendent"
                         }
                     })
@@ -50,19 +66,17 @@ export class OrdersModel {
                             data: {
                                 consumerId: consumerId.id,
                                 farmId: farmId,
-                                productId: productId.id,
+                                productId: productRow.id,
                                 qtd: qtd,
                                 unit: unit,
-                                value: value
+                                value: price
                             }
                         })
 
-                        const { transportValue, registagroValue, total } = paymentSplit(value)
-
-                        const paymentModel = new Payments()
+                        const { transportValue, registagroValue, total } = paymentSplit(price)
 
                         try {
-                            const paid = await paymentModel.create(orderRow.id, transportValue, value, total)
+                            const paid = await paymentModel.create(orderRow.id, transportValue, price, total)
 
                             if(paid.error){
                                 return {error: paid.error}
@@ -103,7 +117,10 @@ export class OrdersModel {
 
             try {
                 const ordersRow = await prisma.orders.findMany({
-                    where: {farmId: farmRow.id}
+                    where: {
+                        farmId: farmRow.id,
+                        status: {not: "inactive"}
+                    }
                 })
 
                 if(ordersRow.length == 0){
@@ -116,11 +133,6 @@ export class OrdersModel {
                             where: {id: column.consumerId},
                             select: {consumerId: true}
                         })
-
-                        const farmRow = await prisma.farms.findFirst({
-                            where: {id: column.farmId},
-                            select: {farmId: true}
-                        })
                         
                         return {
                             id: column.id,
@@ -132,7 +144,7 @@ export class OrdersModel {
                                 }
                             }),
                             farm: await prisma.users.findFirst({
-                                where: {id: farmRow?.farmId!},
+                                where: {id: userId},
                                 select: {
                                     name: true,
                                     profile: true
@@ -180,7 +192,8 @@ export class OrdersModel {
                 const isValidOrder = await prisma.orders.findFirst({
                     where: {
                         farmId: farmRow.id,
-                        id: orderId
+                        id: orderId,
+                        status: {not: "inactive"}
                     }
                 })
 
@@ -221,11 +234,11 @@ export class OrdersModel {
             }
 
             try {
-                const isValidOrder = await prisma.orders.findFirst
-                ({
+                const isValidOrder = await prisma.orders.findFirst({
                     where: {
                         id: orderId,
-                        farmId: farmRow.id
+                        farmId: farmRow.id,
+                        status: {not: "inactive"}
                     }
                 })
 
@@ -247,6 +260,259 @@ export class OrdersModel {
                     return {message: "Pedido rejeitado com sucesso"}
                 } catch (error) {
                     return {error: "Não foi possível rejeitar pedido"}
+                }
+            } catch (error) {
+                return {error: "Ocorreu um erro ao verificar pedido"}
+            }
+        } catch (error) {
+            return {error: "Não foi possível verificar informações"}
+        }
+    }
+
+    async sentOrders(userId: string){
+        try {
+            const consumerRow = await prisma.consumers.findFirst({
+                where: {consumerId: userId},
+                select: {id: true}
+            })
+
+            if(!consumerRow){
+                return {error: "Informações inválidas"}
+            }
+
+            try {
+                const ordersRow = await prisma.orders.findMany({
+                    where: {
+                        consumerId: consumerRow.id,
+                        status: {not: "inactive"}
+                    }
+                })
+
+                if(ordersRow.length == 0){
+                    return {info: "Você ainda não fez nenhum pedido"}
+                }
+
+                const orders = await Promise.all(
+                    ordersRow.map(async column =>{
+                        const farmRow = await prisma.farms.findFirst({
+                            where: {id: column.farmId},
+                            select: {farmId: true}
+                        })
+
+                        return {
+                            id: column.id,
+                            consumer: await prisma.users.findFirst({
+                                where: {id: userId},
+                                select: {
+                                    name: true,
+                                    profile: true
+                                }
+                            }),
+                            farm: await prisma.users.findFirst({
+                                where: {id: farmRow?.farmId!},
+                                select: {
+                                    name: true,
+                                    profile: true,
+                                    farms: {select: {nif: true}}
+                                }
+                            }),
+                            product: await prisma.products.findFirst({
+                                where: {id: column.productId},
+                                select: {
+                                    name: true,
+                                    photo: true,
+                                    type: true
+                                }
+                            }),
+                            qtd: column.qtd,
+                            unit: column.unit,
+                            value: `${column.value}Kz`,
+                            status: column.status,
+                            created_at: column.created_at
+                        }
+                    })
+                )
+
+                return {orders: orders}
+            } catch (error) {
+                return {error: "Não foi possível carregar seus pedidos"}
+            }
+        } catch (error) {
+            return {error: "Não foi possível verificar informações"}
+        }
+    }
+
+    async cancelOrder(userId: string, orderId: string){
+        try {
+            const consumerRow = await prisma.consumers.findFirst({
+                where: {consumerId: userId},
+                select: {id: true}
+            })
+
+            if(!consumerRow){
+                return {error: "Informações inválidas"}
+            }
+
+            try {
+                const cancelResult = await paymentModel.cancelPayment(orderId)
+
+                if(cancelResult.error){
+                    return {error: cancelResult.error}
+                }
+
+                try {
+                    const isValidOrder = await prisma.orders.findFirst({
+                        where: {
+                            id: orderId,
+                            consumerId: consumerRow.id,
+                            OR: [
+                                {status: "pendent"},
+                                {status: "confirmed"}
+                            ]
+                        }
+                    })
+
+                    if(!isValidOrder){
+                        return {error: "Não é possível cancelar pedido"}
+                    }
+
+                    try {
+                        await prisma.orders.update({
+                           where: {
+                               id: orderId,
+                               consumerId: consumerRow.id,
+                           },
+                           data: {status: "canceled"}
+                       })
+        
+                       return {message: "Pedido e pagamento cancelados com sucesso"}
+                    } catch (error) {
+                       return {error: "Não foi possível cancelar pedido"}
+                    }
+                } catch (error) {
+                    return {error: "Ocorreu um erro inesperado"}
+                }
+
+            } catch (error) {
+                return {error: error}
+            }
+
+        } catch (error) {
+            return {error: "Não foi possível verificar informações"}
+        }
+    }
+
+    async updateOrder(userId: string, orderId: string, qtd: number, unit: Stock){
+        try {
+            const consumerRow = await prisma.consumers.findFirst({
+                where: {consumerId: userId},
+                select: {id: true}
+            })
+
+            if(!consumerRow){
+                return {error: "Informações inválidas"}
+            }
+
+            try {
+                const isValidOrder = await prisma.orders.findFirst({
+                    where: {
+                        id: orderId,
+                        consumerId: consumerRow.id,
+                        status: "pendent"
+                    },
+                    select: {productId: true}
+                })
+
+                if(!isValidOrder){
+                    return {error: "Já não é possível atualizar pedido"}
+                }
+
+                try {
+                    const productRow = await prisma.products.findFirst({
+                        where: {
+                            id: isValidOrder.productId,
+                            status: "active"
+                        },
+                        select: {
+                            stock: true,
+                            unit: true,
+                            price: true
+                        }
+                    })
+
+                    const isValidStock = verifyStock(qtd, unit, productRow?.stock!, productRow?.unit!)
+
+                    if(!isValidStock){
+                        return {error: "Não foi possível atualizar produto, estoque insuficiente"}
+                    }
+
+                    const price = orderPrice(productRow?.price!, qtd, unit)
+
+                    try {
+                        await prisma.orders.update({
+                            where: {
+                                id: orderId,
+                                consumerId: consumerRow.id
+                            },
+                            data: {
+                                qtd: qtd,
+                                unit: unit,
+                                value: price
+                            }
+                        })
+    
+                        return {message: "Pedido atualizado com sucesso"}
+                    } catch (error) {
+                        return {error: "Não foi possível editar pedido"}
+                    }
+                } catch (error) {
+                    return {error: "Ocorreu um erro inesperado"}
+                }
+            } catch (error) {
+                return {error: "Não foi possível verificar pedido"}
+            }
+        } catch (error) {
+            return {error: "Não foi possível verificar informações"}
+        }
+    }
+
+    async deleteOrder(userId: string, orderId: string){
+        try {
+            const consumerRow = await prisma.consumers.findFirst({
+                where: {consumerId: userId},
+                select: {id: true}
+            })
+
+            if(!consumerRow){
+                return {error: "Informações inválidas"}
+            }
+
+            try {
+                const orderRow = await prisma.orders.findFirst({
+                    where: {
+                        id: orderId,
+                        consumerId: consumerRow.id,
+                        status: {in: ["rejected", "canceled"]}
+                    }
+                })
+
+                if(!orderRow){
+                    return {error: "Não é possível apagar este pedido"}
+                }
+
+                try {
+                    await prisma.orders.update({
+                        where: {
+                            id: orderId,
+                            consumerId: consumerRow.id,
+                            status: {not: "inactive"}
+                        },
+                        data: {status: "inactive"}
+                    })
+
+                    return {message: "Pedido apagado com sucesso"}
+                } catch (error) {
+                    return {error: "Ocorreu um erro ao apagar pedido"}
                 }
             } catch (error) {
                 return {error: "Ocorreu um erro ao verificar pedido"}
