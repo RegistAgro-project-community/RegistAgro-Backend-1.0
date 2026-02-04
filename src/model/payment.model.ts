@@ -34,4 +34,33 @@ export class Payments {
             return {error: "Não foi possível verificar pagamento"}
         }
     }
+
+    async cancelPayment(orderId: string){
+        try {
+            const isValidOrder = await prisma.orders.findFirst({
+                where: {id: orderId}
+            })
+
+            if(!isValidOrder){
+                return {error: "Pedido inválido"}
+            }
+
+            try {
+                const paymentRow = await prisma.payments.updateMany({
+                    where: {orderId: orderId},
+                    data: {status: "canceled"}
+                })
+
+                if(paymentRow.count == 0){
+                    return {error: "Pagamento não encontrado"}
+                }
+
+                return {message: "Pagamento realizado com sucesso"}
+            } catch (error) {
+                return {error: "Ocorreu um erro ao cancelar pagamento"}
+            }
+        } catch (error) {
+            return {error: "Não foi possível verificar informações"}
+        }
+    }
 }
