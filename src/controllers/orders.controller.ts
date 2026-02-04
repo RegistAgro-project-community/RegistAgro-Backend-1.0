@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { zodError } from "../errors/zod.erros";
-import { createOrderSchema } from "../utils/schemas/orders.zod";
+import { createOrderSchema, updateOrderSchema } from "../utils/schemas/orders.zod";
 import { errors } from "../errors/controllers.errors";
 import { OrdersModel } from "../model/orders.model";
 import type { Stock } from "../../generated/prisma/enums";
@@ -13,10 +13,10 @@ class OrdersController {
         const farmId = req.params["id"]
 
         try {
-            const { name, value, qtd, unit } = createOrderSchema.parse(req.body)
+            const { name, qtd, unit } = createOrderSchema.parse(req.body)
 
             try {
-                const createResult = await ordersModel.create(userId!, farmId as string, name, value, qtd, unit as Stock)
+                const createResult = await ordersModel.create(userId!, farmId as string, name, qtd, unit as Stock)
 
                 if(createResult.info){
                     return res.status(404).json(createResult)
@@ -84,6 +84,82 @@ class OrdersController {
             }
 
             return res.status(200).json(rejectResult)
+        } catch (error) {
+            errors(res)
+        }
+    }
+
+    async sentOrders(req: Request, res: Response){
+        const userId = req.user?.id
+
+        try {
+            const sentOrdersResult = await ordersModel.sentOrders(userId!)
+
+            if(sentOrdersResult.error){
+                return res.status(400).json(sentOrdersResult)
+            }else if(sentOrdersResult.info){
+                return res.status(404).json(sentOrdersResult)
+            }
+
+            return res.status(200).json(sentOrdersResult)
+        } catch (error) {
+            errors(res)
+        }
+    }
+
+    async cancelOrder(req: Request, res: Response){
+        const userId = req.user?.id
+        const orderId = req.params["id"]
+
+        try {
+            const cancelResult = await ordersModel.cancelOrder
+            (userId!, orderId as string)
+
+            if(cancelResult.error){
+                return res.status(400).json(cancelResult)
+            }
+
+            return res.status(200).json(cancelResult)
+        } catch (error) {
+            errors(res)
+        }
+    }
+
+    async updateOrder(req: Request, res: Response){
+        const userId = req.user?.id
+        const orderId = req.params["id"]
+
+        try {
+            const { qtd, unit } = updateOrderSchema.parse(req.body)
+
+            try {
+                const updateResult = await ordersModel.updateOrder(userId!, orderId as string, qtd, unit as Stock)
+
+                if(updateResult.error){
+                    return res.status(400).json(updateResult)
+                }
+
+                return res.status(200).json(updateResult)
+            } catch (error) {
+                errors(res)
+            }
+        } catch (error) {
+            zodError(error, res)
+        }
+    }
+
+    async deleteOrder(req: Request, res: Response){
+        const userId = req.user?.id
+        const orderId = req.params["id"]
+
+        try {
+            const deleteResult = await ordersModel.deleteOrder(userId!, orderId as string)
+
+            if(deleteResult.error){
+                return res.status(400).json(deleteResult)
+            }
+
+            return res.status(200).json(deleteResult)
         } catch (error) {
             errors(res)
         }
