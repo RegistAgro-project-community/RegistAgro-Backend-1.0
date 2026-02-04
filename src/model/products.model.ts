@@ -1,5 +1,5 @@
 import path from "node:path";
-import type { ProductsType, Stock, VehiclesType } from "../../generated/prisma/enums";
+import type { ProductsType, Rule, Stock, VehiclesType } from "../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
 import { notFound } from "../errors/notFound";
 import type { UploadedFile } from 'express-fileupload';
@@ -170,7 +170,7 @@ export class ProductsModel {
         }
     }
 
-    async getAll(userId: string){
+    async getAll(userId: string, rule?: Rule){
         try {
             const farmRow = await prisma.farms.findFirst({
                 where: {farmId: userId},
@@ -222,7 +222,13 @@ export class ProductsModel {
                         if(products.length == 0){
                             return {info: "Você não ainda não possui nenhum produto"}
                         }
-            
+
+                        if(rule == "consumer"){
+                            return {
+                                products: products
+                            }
+                        }
+
                         return {
                             products: products,
                             totalProducts: totalProdutos,
@@ -265,6 +271,7 @@ export class ProductsModel {
                         ]
                     },
                     select: {
+                        id: true,
                         name: true,
                         description: true,
                         price: true,
@@ -281,7 +288,10 @@ export class ProductsModel {
                     return {info: "Produto não encontrado"}
                 }
     
-                return {product: productRow}
+                return {
+                    product: productRow, 
+                    farmId: farmId.id
+                }
             } catch (error) {
                 if(notFound(error)){
                     return {info: "Produto não encontrado"}
