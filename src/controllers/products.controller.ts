@@ -3,7 +3,7 @@ import { ProductsModel } from "../model/products.model"
 import { zodError } from "../errors/zod.erros"
 import { createSchema, updateSchema } from "../utils/schemas/products.zod"
 import { errors } from "../errors/controllers.errors"
-import type { ProductsType, Stock, VehiclesType } from "../../generated/prisma/enums"
+import type { ProductsType, Rule, Stock, VehiclesType } from "../../generated/prisma/enums"
 import type { UploadedFile } from "express-fileupload"
 
 const productModel = new ProductsModel()
@@ -139,9 +139,10 @@ class ProductController {
 
     async consumerReadAll(req: Request, res: Response){
         const farmId = req.params.id
+        const rule = req.user?.rule
         
         try {
-            const getResult = await productModel.getAll(farmId as string)
+            const getResult = await productModel.getAll(farmId as string, rule as Rule)
 
             if(getResult.info){
                 return res.status(404).json(getResult)
