@@ -11,7 +11,7 @@ export function auth(req: Request, res: Response, next: NextFunction){
     const authToken = req.headers.authorization
 
     if(!authToken){
-        return res.status(403).json({error: "Acesso negado"})
+        return res.status(401).json({error: "Acesso negado"})
     }
 
     const token = authToken.split(" ")[1] ?? ""
@@ -26,6 +26,6 @@ export function auth(req: Request, res: Response, next: NextFunction){
         next()
         
     } catch (error) {
-        return res.status(401).json({error: "Sua sessão expirou"})
+        return res.status(403).json({error: "Sua sessão expirou"})
     }
 }
