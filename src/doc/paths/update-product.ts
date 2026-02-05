@@ -3,6 +3,9 @@ export const updateProductPath = {
         put: {
             tags: ["Products"],
             summary: "Atualizar dados de um produto",
+            security: [
+                { bearerAuth: [] }
+            ],
             parameters: [
                 {
                     name: "id",
