@@ -3,6 +3,9 @@ export const deleteProductPath = {
         delete: {
             tags: ["Products"],
             summary: "Apagar um produto",
+            security: [
+                { bearerAuth: [] }
+            ],
             parameters: [
                 {
                     name: "id",
