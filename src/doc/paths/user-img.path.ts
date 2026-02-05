@@ -3,6 +3,9 @@ export const userProfilePhotoPath = {
         post: {
             tags: ["Users"],
             summary: "Adicionar foto de perfil",
+            security: [
+                { bearerAuth: [] }
+            ],
             requestBody: {
                 required: true,
                 content: {
