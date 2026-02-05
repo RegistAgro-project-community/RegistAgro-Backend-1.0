@@ -3,6 +3,9 @@ export const consumerGetAllProductPath = {
         get: {
             tags: ["Products"],
             summary: "Consumidor visualiza todos osproduto de uma fazenda",
+            security: [
+                { bearerAuth: [] }
+            ],
             parameters: [
                 {
                     name: "id",
