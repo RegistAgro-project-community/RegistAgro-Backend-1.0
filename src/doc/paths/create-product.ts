@@ -3,6 +3,9 @@ export const createProductPath = {
         post: {
             tags: ["Products"],
             summary: "Cadastrar Produto",
+            security: [
+                { bearerAuth: [] }
+            ],
             requestBody: {
                 required: true,
                 content: {
