@@ -3,6 +3,9 @@ export const userProfilePath = {
         get: {
             tags: ["Users"],
             summary: "Ver meus dados",
+            security: [
+                { bearerAuth: [] }
+            ],
             responses: {
                 200: {description: "OK"},
                 400: {description: "Bad Request"},
