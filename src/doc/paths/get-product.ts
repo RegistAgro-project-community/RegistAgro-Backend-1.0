@@ -3,6 +3,9 @@ export const getProductPath = {
         get: {
             tags: ["Products"],
             summary: "Ver um produto",
+            security: [
+                { bearerAuth: [] }
+            ],
             parameters: [
                 {
                     name: "id",
