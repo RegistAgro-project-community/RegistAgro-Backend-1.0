@@ -3,6 +3,9 @@ export const getAllProductsPath = {
         get: {
             tags: ["Products"],
             summary: "Ver todos meus produtos",
+            security: [
+                { bearerAuth: [] }
+            ],
             responses: {
                 200: {description: "OK"},
                 400: {description: "Bad Request"},
