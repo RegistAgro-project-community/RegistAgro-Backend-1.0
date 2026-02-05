@@ -3,6 +3,9 @@ export const productPhotoPath = {
         post: {
             tags: ["Products"],
             summary: "Adicionar foto a um produto",
+            security: [
+                { bearerAuth: [] }
+            ],
             parameters: [
                 {
                     name: "id",
