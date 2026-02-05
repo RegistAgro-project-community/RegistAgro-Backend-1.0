@@ -3,6 +3,9 @@ export const userUpdatePath = {
         put: {
             tags: ["Users"],
             summary: "Atualizar dados",
+            security: [
+                { bearerAuth: [] }
+            ],
             requestBody: {
                 required: true,
                 content: {
