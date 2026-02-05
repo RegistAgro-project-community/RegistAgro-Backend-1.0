@@ -26,6 +26,15 @@ import { deleteUserPath } from "./paths/delete-user.path"
 import { userProfilePhotoPath } from "./paths/user-img.path"
 import { userProfilePhotoSchema } from "./schemas/user-img.schema"
 import { userProfilePath } from "./paths/user-profile.path"
+import { createOrderPath } from "./paths/create-order.path"
+import { createOrderSchema } from "./schemas/create-oder.schema"
+import { getAllOrdersFarmsPath } from "./paths/getAll-ordersFarm"
+import { acceptOrdersPath } from "./paths/accept-orders"
+import { sentOrdersPath } from "./paths/sent-orders"
+import { cancelOrdersPath } from "./paths/cancel-orders"
+import { updateOrdersPath } from "./paths/update-orders.path"
+import { deleteOrderPath } from "./paths/delete-order"
+import { updateOrdersSchema } from "./schemas/update-orders.schema"
 
 const swaggerOptions = {
   definition: {
@@ -47,7 +56,8 @@ const swaggerOptions = {
     tags: [
       { name: "Auth", description: "Authentication routes" },
       { name: "Products", description: "Farm Products"},
-      { name: "Users", description: "Users actions routes"}
+      { name: "Users", description: "Users actions routes"},
+      {name: "Orders", description: "Orders endpoints"}
     ],
 
     paths: {
@@ -68,7 +78,14 @@ const swaggerOptions = {
         ...userUpdatePath,
         ...deleteUserPath,
         ...userProfilePhotoPath,
-        ...userProfilePath
+        ...userProfilePath,
+        ...createOrderPath,
+        ...getAllOrdersFarmsPath,
+        ...acceptOrdersPath,
+        ...sentOrdersPath,
+        ...cancelOrdersPath,
+        ...updateOrdersPath,
+        ...deleteOrderPath
     },
 
     components: {
@@ -88,7 +105,9 @@ const swaggerOptions = {
         ...productPhotoSchema,
         ...updateProductSchema,
         ...updateUserSchema,
-        ...userProfilePhotoSchema
+        ...userProfilePhotoSchema,
+        ...createOrderSchema,
+        ...updateOrdersSchema
       }
     }
   },
