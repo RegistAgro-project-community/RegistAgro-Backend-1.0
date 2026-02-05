@@ -34,10 +34,10 @@ router.get('/users/profile', auth, usersController.profile)
 
 //Orders
 router.post('/orders/create/farm/:id', auth, authorization("consumer", "create"), ordersController.create)
-router.get('/orders/farms/getAll', auth, authorization("farm", "read"), ordersController.viewsAll)
+router.get('/orders/farms/order/getAll', auth, authorization("farm", "read"), ordersController.viewsAll)
 router.patch('/orders/accept/order/:id', auth, authorization("farm", "update"), ordersController.accept)
 router.patch('/orders/reject/order/:id', auth, authorization("farm", "update"), ordersController.reject)
-router.get('/orders/consumers/sent', auth, authorization("consumer", "create"), ordersController.sentOrders)
+router.get('/orders/consumers/order/sent', auth, authorization("consumer", "create"), ordersController.sentOrders)
 router.patch('/orders/consumers/cancel/order/:id', auth, authorization("consumer", "update"), ordersController.cancelOrder)
 router.put('/orders/consumers/update/order/:id', auth, authorization("consumer", "update"), ordersController.updateOrder)
 router.delete('/orders/consumers/delete/order/:id', auth, authorization("consumer", "delete"), ordersController.deleteOrder)
