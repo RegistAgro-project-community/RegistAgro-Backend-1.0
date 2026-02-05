@@ -1,4 +1,4 @@
-import { Router, type Request, type Response } from "express";
+import { Router } from "express";
 import authController from "../controllers/auth/auth.controller";
 import { auth } from "../middlewares/auth";
 import { authorization } from "../middlewares/permissions";
