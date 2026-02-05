@@ -3,6 +3,9 @@ export const farmPassordPath = {
         post: {
             tags: ["Auth"],
             summary: "Definir senha das fazendas",
+            security: [
+                { bearerAuth: [] }
+            ],
             requestBody: {
                 required: true,
                 content: {
