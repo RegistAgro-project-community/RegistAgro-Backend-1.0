@@ -3,6 +3,9 @@ export const deleteUserPath = {
         delete: {
             tags: ["Users"],
             summary: "Apagar usuário",
+            security: [
+                { bearerAuth: [] }
+            ],
             responses: {
                 200: {description: "OK"},
                 400: {description: "Bad Request"},
