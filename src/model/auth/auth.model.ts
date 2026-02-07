@@ -318,18 +318,19 @@ class AuthModel {
                             }
 
                             try {
-                                await prisma.users.update({
-                                    where: {
-                                        id: userData.id
-                                    },
-                                    data: {
-                                        status: "active"
-                                    }
-                                })
                                 
                                 switch (userData.rule) {
                                     case "carrier":
                                         try {
+                                            await prisma.users.update({
+                                                where: {
+                                                    id: userData.id
+                                                },
+                                                data: {
+                                                    status: "active"
+                                                }
+                                            })
+
                                             await prisma.carriers.create({
                                                 data: {
                                                     carrierId: userData.id,
@@ -342,6 +343,14 @@ class AuthModel {
                                         break;
                                     case "consumer":
                                         try {
+                                            await prisma.users.update({
+                                                where: {
+                                                    id: userData.id
+                                                },
+                                                data: {
+                                                    status: "active"
+                                                }
+                                            })
                                             await prisma.consumers.create({
                                                 data: {consumerId: userData.id}
                                             })
