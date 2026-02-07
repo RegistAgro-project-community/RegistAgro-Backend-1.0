@@ -12,6 +12,7 @@ const app = express()
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 app.use(express.json())
+app.use(express.urlencoded({ extended: true }))
 app.use(fileupload())
 app.use("/upload", express.static(path.resolve("src/upload")))
 app.use(helmet())
