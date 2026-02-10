@@ -80,7 +80,7 @@ export class UsersModel {
             }
 
             try {
-                const profileUrl = `http://localhost:5500/upload/users/${uploadResult.filename}`
+                const profileUrl = `https://api-registagro.onrender.com/upload/users/${uploadResult.filename}`
 
                 const userRow = await prisma.users.update({
                     where: {
