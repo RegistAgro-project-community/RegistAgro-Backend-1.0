@@ -1,10 +1,10 @@
-import type { Stock } from "../../generated/prisma/enums";
-import { prisma } from "../../lib/prisma";
-import { notFound } from "../errors/notFound";
-import { paymentSplit } from "../utils/paymentSplit";
-import { Payments } from "./payment.model";
-import { orderPrice } from "../utils/orderPrice";
-import { verifyStock } from "../utils/verifyStock";
+import type { Stock } from "../../generated/prisma/enums.js";
+import { prisma } from "../../lib/prisma.js";
+import { notFound } from "../errors/notFound.js";
+import { paymentSplit } from "../utils/paymentSplit.js";
+import { Payments } from "./payment.model.js";
+import { orderPrice } from "../utils/orderPrice.js";
+import { verifyStock } from "../utils/verifyStock.js";
 
 const paymentModel = new Payments()
 
