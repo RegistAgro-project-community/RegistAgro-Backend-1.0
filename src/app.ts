@@ -1,12 +1,12 @@
 import express  from "express";
 import helmet from "helmet";
-import { router } from "./router/routes";
-import { limiter } from "./config/rate-limiting";
+import { router } from "./router/routes.js";
+import { limiter } from "./config/rate-limiting.js";
 import morgan from 'morgan'
 import fileupload from 'express-fileupload' 
 import path from "path";
 import swaggerUi from 'swagger-ui-express'
-import { swaggerSpec } from "./doc/swagger";
+import { swaggerSpec } from "./doc/swagger.js";
 
 const app = express()
 
