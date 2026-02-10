@@ -508,6 +508,7 @@ class AuthModel {
             const userData = await prisma.users.findUnique({
                 where: {
                     email: email,
+                    status: "active",
                     OR: [
                         {rule: "carrier"},
                         {rule: "consumer"}
