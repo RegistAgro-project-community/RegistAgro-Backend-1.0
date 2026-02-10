@@ -1,9 +1,9 @@
 import path from "node:path";
-import type { ProductsType, Rule, Stock, VehiclesType } from "../../generated/prisma/enums";
-import { prisma } from "../../lib/prisma";
-import { notFound } from "../errors/notFound";
+import type { ProductsType, Rule, Stock, VehiclesType } from "../../generated/prisma/enums.js";
+import { prisma } from "../../lib/prisma.js";
+import { notFound } from "../errors/notFound.js";
 import type { UploadedFile } from 'express-fileupload';
-import { image } from "../utils/image";
+import { image } from "../utils/image.js";
 
 export class ProductsModel {
     async create(userId: string, name: string, description: string, price: number, stock: number, unit: Stock, type: ProductsType, transport: VehiclesType){
