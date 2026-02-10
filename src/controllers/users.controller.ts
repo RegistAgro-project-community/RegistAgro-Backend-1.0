@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
-import { zodError } from "../errors/zod.erros";
-import { updateUser } from "../utils/schemas/users.zod";
-import { errors } from "../errors/controllers.errors";
-import { UsersModel } from "../model/users.model";
-import type { Province } from "../../generated/prisma/enums";
+import { zodError } from "../errors/zod.erros.js";
+import { updateUser } from "../utils/schemas/users.zod.js";
+import { errors } from "../errors/controllers.errors.js";
+import { UsersModel } from "../model/users.model.js";
+import type { Province } from "../../generated/prisma/enums.js";
 import type { UploadedFile } from "express-fileupload";
 
 const usersModel = new UsersModel()
