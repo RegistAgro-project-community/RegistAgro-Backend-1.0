@@ -1,5 +1,5 @@
 export const consumerGetAllProductPath = {
-    '/products/consumers/getAll/{id}': {
+    '/products/consumers/get/{id}': {
         get: {
             tags: ["Products"],
             summary: "Consumidor visualiza todos osproduto de uma fazenda",
