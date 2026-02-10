@@ -1,5 +1,5 @@
 import 'dotenv/config'
-import { transporter } from '../config/email.conf'
+import { transporter } from '../config/email.conf.js'
 
 async function sendEmail(email: string, code: string){
     //Enviar email
