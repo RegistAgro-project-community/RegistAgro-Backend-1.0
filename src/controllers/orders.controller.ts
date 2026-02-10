@@ -1,9 +1,9 @@
 import type { Request, Response } from "express";
-import { zodError } from "../errors/zod.erros";
-import { createOrderSchema, updateOrderSchema } from "../utils/schemas/orders.zod";
-import { errors } from "../errors/controllers.errors";
-import { OrdersModel } from "../model/orders.model";
-import type { Stock } from "../../generated/prisma/enums";
+import { zodError } from "../errors/zod.erros.js";
+import { createOrderSchema, updateOrderSchema } from "../utils/schemas/orders.zod.js";
+import { errors } from "../errors/controllers.errors.js";
+import { OrdersModel } from "../model/orders.model.js";
+import type { Stock } from "../../generated/prisma/enums.js";
 
 const ordersModel = new OrdersModel()
 
