@@ -92,6 +92,7 @@ class OrdersController {
     async sentOrders(req: Request, res: Response){
         const userId = req.user?.id
 
+        console.log(userId)
         try {
             const sentOrdersResult = await ordersModel.sentOrders(userId!)
 
