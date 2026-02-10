@@ -1,5 +1,5 @@
 export const getAllProductsPath = {
-    '/products/farms/getAll': {
+    '/products/farms/get': {
         get: {
             tags: ["Products"],
             summary: "Ver todos meus produtos",
