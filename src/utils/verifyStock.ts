@@ -1,4 +1,4 @@
-import type { Stock } from "../../generated/prisma/enums";
+import type { Stock } from "../../generated/prisma/enums.js";
 
 interface ToKg {
     _orderQtd: number,
