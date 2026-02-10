@@ -50,6 +50,10 @@ const swaggerOptions = {
       {
         url: "http://localhost:5500",
         description: "Servidor local"
+      },
+      {
+        url: "https://api-registagro.onrender.com",
+        description: "Web Server"
       }
     ],
 
