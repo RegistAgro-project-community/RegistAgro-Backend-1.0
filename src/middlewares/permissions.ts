@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express"
-import { roles } from "../config/roles.conf"
-import type { Rule } from "../../generated/prisma/enums"
+import { roles } from "../config/roles.conf.js"
+import type { Rule } from "../../generated/prisma/enums.js"
 
 type UserType = Rule;
 
