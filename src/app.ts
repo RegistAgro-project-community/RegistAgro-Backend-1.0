@@ -10,13 +10,15 @@ import { swaggerSpec } from "./doc/swagger.js";
 
 const app = express()
 
+
+app.set('trust proxy', 1)
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
+app.use(limiter)
 app.use(fileupload())
 app.use("/upload", express.static(path.resolve("src/upload")))
 app.use(helmet())
-app.use(limiter)
 app.use(morgan("combined"))
 app.use(router)
 
