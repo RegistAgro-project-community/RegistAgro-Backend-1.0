@@ -1,11 +1,11 @@
 import type { Request, Response } from "express";
-import { zodError } from "../../errors/zod.erros";
-import { signupSchema } from "../../utils/schemas/schema.zod";
-import { ruleValidation } from "../../errors/rule.errros";
-import { AuthModel } from "../../model/auth/auth.model";
-import { errors } from "../../errors/controllers.errors";
-import type { Province, Rule } from "../../../generated/prisma/enums";
-import { farmSigninSchema, loginSchema } from "../../utils/schemas/login.zod";
+import { zodError } from "../../errors/zod.erros.js";
+import { signupSchema } from "../../utils/schemas/schema.zod.js";
+import { ruleValidation } from "../../errors/rule.errros.js";
+import { AuthModel } from "../../model/auth/auth.model.js";
+import { errors } from "../../errors/controllers.errors.js";
+import type { Province, Rule } from "../../../generated/prisma/enums.js";
+import { farmSigninSchema, loginSchema } from "../../utils/schemas/login.zod.js";
 
 const authModel = new AuthModel()
 
