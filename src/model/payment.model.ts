@@ -1,4 +1,4 @@
-import { prisma } from "../../lib/prisma"
+import { prisma } from "../../lib/prisma.js"
 
 export class Payments {
     async create(orderId: string, transportValue: number, productValue: number, total: number){
