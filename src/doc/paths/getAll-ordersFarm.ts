@@ -1,5 +1,5 @@
 export const getAllOrdersFarmsPath = {
-    '/orders/farms/order/getAll': {
+    '/orders/farms/order/get': {
         get: {
             tags: ["Orders"],
             summary: "Visualizar todos os pedidos das fazendas",
