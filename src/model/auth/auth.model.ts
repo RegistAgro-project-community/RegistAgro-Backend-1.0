@@ -1,10 +1,10 @@
-import type { Province, Rule } from "../../../generated/prisma/enums"
-import { prisma } from "../../../lib/prisma"
-import { redisClient } from "../../config/redis.config"
-import { sendEmail } from "../../services/email.service"
-import { DataValidate } from "../../utils/data.validate"
-import { PasswordHash } from "../../utils/password.hash"
-import { VerificationCode } from "../../utils/verification.code"
+import type { Province, Rule } from "../../../generated/prisma/enums.js"
+import { prisma } from "../../../lib/prisma.js"
+import { redisClient } from "../../config/redis.config.js"
+import { sendEmail } from "../../services/email.service.js"
+import { DataValidate } from "../../utils/data.validate.js"
+import { PasswordHash } from "../../utils/password.hash.js"
+import { VerificationCode } from "../../utils/verification.code.js"
 import jwt from 'jsonwebtoken'
 
 class AuthModel {
