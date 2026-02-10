@@ -1,5 +1,5 @@
 import type { UploadedFile } from "express-fileupload";
-import { upload } from "./upload";
+import { upload } from "./upload.js";
 import path from "path";
 
 interface ImageUploadResult {
