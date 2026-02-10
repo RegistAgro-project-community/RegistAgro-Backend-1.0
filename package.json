@@ -4,7 +4,11 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "api": "tsx --watch src/server.ts"
+    "api": "tsx --watch src/server.ts",
+    "seed:prod": "node dist/prisma/seed.js",
+    "build": "tsc",
+    "start": "node dist/src/server.js",
+    "postinstall": "prisma generate"
   },
   "keywords": [],
   "author": "",
