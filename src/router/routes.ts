@@ -1,12 +1,16 @@
 import { Router } from "express";
-import authController from "../controllers/auth/auth.controller";
-import { auth } from "../middlewares/auth";
-import { authorization } from "../middlewares/permissions";
-import productsController from "../controllers/products.controller";
-import usersController from "../controllers/users.controller";
-import ordersController from "../controllers/orders.controller";
+import authController from "../controllers/auth/auth.controller.js";
+import { auth } from "../middlewares/auth.js";
+import { authorization } from "../middlewares/permissions.js";
+import productsController from "../controllers/products.controller.js";
+import usersController from "../controllers/users.controller.js";
+import ordersController from "../controllers/orders.controller.js";
+import { healthyRoute } from "../controllers/healthy.controller.js";
 
 const router = Router()
+
+//Healthy
+router.get('/', healthyRoute)
 
 //Auth
 router.post('/auth/signup/:rule', authController.signup)
