@@ -1,4 +1,4 @@
-import type { Stock } from "../../generated/prisma/enums";
+import type { Stock } from "../../generated/prisma/enums.js";
 
 function convertToKg(qtd: number, unit: Stock){
     return unit == "t" ? qtd * 1000 : qtd
