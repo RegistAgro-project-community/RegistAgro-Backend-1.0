@@ -94,7 +94,7 @@ export class ProductsModel {
                 }
 
                 try {
-                    const urlImg = `http://localhost:5500/upload/products/${uploadResult.filename}`
+                    const urlImg = `https://api-registagro.onrender.com/upload/products/${uploadResult.filename}`
     
                     const productRow = await prisma.products.update({
                         where: {
