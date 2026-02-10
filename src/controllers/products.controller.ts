@@ -1,9 +1,9 @@
 import type { Request, Response } from "express"
-import { ProductsModel } from "../model/products.model"
-import { zodError } from "../errors/zod.erros"
-import { createSchema, updateSchema } from "../utils/schemas/products.zod"
-import { errors } from "../errors/controllers.errors"
-import type { ProductsType, Rule, Stock, VehiclesType } from "../../generated/prisma/enums"
+import { ProductsModel } from "../model/products.model.js"
+import { zodError } from "../errors/zod.erros.js"
+import { createSchema, updateSchema } from "../utils/schemas/products.zod.js"
+import { errors } from "../errors/controllers.errors.js"
+import type { ProductsType, Rule, Stock, VehiclesType } from "../../generated/prisma/enums.js"
 import type { UploadedFile } from "express-fileupload"
 
 const productModel = new ProductsModel()
