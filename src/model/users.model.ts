@@ -1,9 +1,9 @@
 import type { UploadedFile } from "express-fileupload";
-import type { Province } from "../../generated/prisma/enums";
-import { prisma } from "../../lib/prisma";
-import { notFound } from "../errors/notFound";
+import type { Province } from "../../generated/prisma/enums.js";
+import { prisma } from "../../lib/prisma.js";
+import { notFound } from "../errors/notFound.js";
 import path from "path";
-import { image } from "../utils/image";
+import { image } from "../utils/image.js";
 
 export class UsersModel {
     async update(userId: string, name: string, adress: string, province: Province){
