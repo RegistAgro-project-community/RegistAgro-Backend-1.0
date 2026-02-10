@@ -24,10 +24,10 @@ router.post('/auth/login', authController.login)
 router.post('/products/create', auth, authorization("farm", "create"), productsController.create)
 router.post('/products/upload/:id', auth, authorization("farm", "create"), productsController.productPhoto)
 router.put('/products/update/:id', auth, authorization("farm", "update"), productsController.update)
-router.get('/products/farms/getAll', auth, authorization("farm", "read"), productsController.getAll)
+router.get('/products/farms/get', auth, authorization("farm", "read"), productsController.getAll)
 router.get('/products/farms/get/:id', auth, authorization("farm", "read"), productsController.get)
 router.delete('/products/delete/:id', auth, authorization("farm", "delete"), productsController.delete)
-router.get('/products/consumers/getAll/:id', auth, authorization("farm", "read"), productsController.consumerReadAll)
+router.get('/products/consumers/get/:id', auth, authorization("farm", "read"), productsController.consumerReadAll)
 router.get('/products/consumers/farm/:farmId/product/:id', auth, authorization("farm", "read"), productsController.consumerRead)
 
 //Users
@@ -38,7 +38,7 @@ router.get('/users/profile', auth, usersController.profile)
 
 //Orders
 router.post('/orders/create/farm/:id', auth, authorization("consumer", "create"), ordersController.create)
-router.get('/orders/farms/order/getAll', auth, authorization("farm", "read"), ordersController.viewsAll)
+router.get('/orders/farms/order/get', auth, authorization("farm", "read"), ordersController.viewsAll)
 router.patch('/orders/accept/order/:id', auth, authorization("farm", "update"), ordersController.accept)
 router.patch('/orders/reject/order/:id', auth, authorization("farm", "update"), ordersController.reject)
 router.get('/orders/consumers/order/sent', auth, authorization("consumer", "create"), ordersController.sentOrders)
