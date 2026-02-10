@@ -1,4 +1,4 @@
-import { prisma } from "../lib/prisma";
+import { prisma } from "../lib/prisma.js";
 
 (
     async ()=>{
@@ -296,7 +296,7 @@ import { prisma } from "../lib/prisma";
 
             await prisma.$disconnect()
         } catch (error) {
-            console.error("Não foi possível verificar seed")
+            console.error("Não foi possível verificar seed", error)
         }
     }
 )()
