@@ -4,9 +4,10 @@ import { prisma } from "../../lib/prisma.js";
 import { notFound } from "../errors/notFound.js";
 import type { UploadedFile } from 'express-fileupload';
 import { image } from "../utils/image.js";
+import 'dotenv/config.js'
 
 export class ProductsModel {
-    async create(userId: string, name: string, description: string, price: number, stock: number, unit: Stock, type: ProductsType, transport: VehiclesType){
+    async create(img: UploadedFile | undefined,userId: string, name: string, description: string, price: number, stock: number, unit: Stock, type: ProductsType, transport: VehiclesType){
         try {
             const farmId = await prisma.farms.findFirst({
                 where: {
@@ -36,24 +37,51 @@ export class ProductsModel {
                 if(isRegistered){
                     return {info: "Este produto já foi cadastrado"}
                 }
-                try {
-                    await prisma.products.create({
-                        data: {
-                            name: name,
-                            description: description,
-                            price: price,
-                            stock: stock,
-                            unit: unit,
-                            type: type,
-                            photo: "",
-                            transport: transport,
-                            farmId: farmId.id
-                        }
-                    })
 
-                    return {message: "Produto cadastrado com sucesso"}
+                const url = path.join(process.cwd(), "src", "upload", "products")
+
+                try {
+                    const uploadResult = await image(img, url, "product")
+
+                    if(!uploadResult.success){
+                        if(uploadResult.validFormat){
+                            return {
+                                success: uploadResult.success,
+                                error: uploadResult.error,
+                                validFormat: uploadResult.validFormat
+                            }
+                        }
+                        return {
+                            success: uploadResult.success,
+                            error: uploadResult.error
+                        }
+                    }
+
+                    const imgEnv = process.env.ENV! == 'dev' ? "http://localhost:5500" : "https://api-registagro.onrender.com"
+
+                    try {
+                        const urlImg = `${imgEnv}/upload/products/${uploadResult.filename}`
+
+                        await prisma.products.create({
+                            data: {
+                                name: name,
+                                description: description,
+                                price: price,
+                                stock: stock,
+                                unit: unit,
+                                type: type,
+                                photo: urlImg,
+                                transport: transport,
+                                farmId: farmId.id
+                            }
+                        })
+    
+                        return {message: "Produto cadastrado com sucesso"}
+                    } catch (error) {
+                        return {error: "Ocorreu um erro ao cadastrar produto"}
+                    }
                 } catch (error) {
-                    return {error: "Ocorreu um erro ao cadastrar produto"}
+                    return{error: "Não foi possível cadastrar produto"}
                 }
                 
             } catch (error) {
