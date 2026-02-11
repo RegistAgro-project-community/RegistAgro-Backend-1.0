@@ -1,8 +1,8 @@
 export const productPhotoPath = {
     '/products/upload/{id}': {
-        post: {
+        patch: {
             tags: ["Products"],
-            summary: "Adicionar foto a um produto",
+            summary: "Atualizar foto de um produto",
             security: [
                 { bearerAuth: [] }
             ],
