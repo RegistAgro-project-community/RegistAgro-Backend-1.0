@@ -48,7 +48,7 @@ class ProductController {
             if(productPhotoResult.info){
                 return res.status(404).json(productPhotoResult)
             }else if(productPhotoResult.message){
-                return res.status(201).json(productPhotoResult)
+                return res.status(200).json(productPhotoResult)
             }
 
             return res.status(400).json(productPhotoResult)
