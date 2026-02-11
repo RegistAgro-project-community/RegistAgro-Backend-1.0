@@ -11,13 +11,19 @@ const productModel = new ProductsModel()
 class ProductController {
     async create(req: Request, res: Response){
         const farmId = req.user?.id
-        console.log(farmId)
+        const img = req.files?.img as UploadedFile | undefined
+        
+        if(!req.body['data']){
+            return res.status(400).json({error: "O campo data não foi enviado"})
+        }
 
+        const parseData = JSON.parse(req.body['data'])
+        
         try {
-            const { name, description, price, stock, unit, type, transport } = createSchema.parse(req.body)
+            const { name, description, price, stock, unit, type, transport } = createSchema.parse(parseData)
 
             try {
-                const createResult = await productModel.create(farmId!, name, description, price, stock, unit as Stock, type as ProductsType, transport as VehiclesType)
+                const createResult = await productModel.create(img, farmId!, name, description, price, stock, unit as Stock, type as ProductsType, transport as VehiclesType)
 
                 if(createResult.info || createResult.error){
                     return res.status(400).json(createResult)
