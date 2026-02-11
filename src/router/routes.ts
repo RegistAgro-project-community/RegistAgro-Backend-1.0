@@ -22,7 +22,7 @@ router.post('/auth/login', authController.login)
 
 //Products
 router.post('/products/create', auth, authorization("farm", "create"), productsController.create)
-router.post('/products/upload/:id', auth, authorization("farm", "create"), productsController.productPhoto)
+router.patch('/products/upload/:id', auth, authorization("farm", "update"), productsController.productPhoto)
 router.put('/products/update/:id', auth, authorization("farm", "update"), productsController.update)
 router.get('/products/farms/get', auth, authorization("farm", "read"), productsController.getAll)
 router.get('/products/farms/get/:id', auth, authorization("farm", "read"), productsController.get)
