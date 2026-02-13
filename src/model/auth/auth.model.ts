@@ -1,10 +1,9 @@
 import type { Province, Rule } from "../../../generated/prisma/enums.js"
 import { prisma } from "../../../lib/prisma.js"
 import { redisClient } from "../../config/redis.config.js"
-import { sendEmail } from "../../services/email.service.js"
+import { sendEmailWithOTP, verifyOTPCode } from "../../services/email.service.js"
 import { DataValidate } from "../../utils/data.validate.js"
 import { PasswordHash } from "../../utils/password.hash.js"
-import { VerificationCode } from "../../utils/verification.code.js"
 import jwt from 'jsonwebtoken'
 
 class AuthModel {
@@ -103,41 +102,24 @@ class AuthModel {
                     await redisClient.set("pendingUserId", pendingUserId.id)
 
                     //Gerar código de verificação
-                    const generate = new VerificationCode()
-                    const code = generate.generate()
+                    //const generate = new VerificationCode()
+                    //const code = generate.generate()
 
-                    try {
-                        //Enviar email de verificação
-                        const emailResult = await sendEmail(email, code)
+                    //Enviar email de verificação
+                    const { valid, error } = await sendEmailWithOTP(email)
 
-                        if(emailResult.valid){
-                            try {
-                                const idCode = await prisma.verificationCode.create({
-                                    data: {
-                                        code: Number(code),
-                                        email: email, 
-                                    }
-                                })
-
-                                await redisClient.set("CodeId", idCode.id)
-
-                                return {
-                                    valid: emailResult.valid,
-                                    message: "Foi enviado um código de verificação no seu email"
-                                }
-
-                            } catch (error) {
-                                return {error: "Ocorreu um erro ao armazenar informações"}
-                            }
-                        }
-
+                    if(valid){
+                        await redisClient.set("email", email)
+                        
                         return {
-                            valid: false,
-                            message: emailResult.error
+                            valid: valid,
+                            message: "Foi enviado um código de verificação no seu email"
                         }
+                    }
 
-                    } catch (error) {
-                        return {error: "Não foi possível enviar código de verificação"}
+                    return {
+                        valid: false,
+                        message: error
                     }
 
                 } catch (error) {
@@ -221,42 +203,24 @@ class AuthModel {
                         await redisClient.set("pendingUserId", pendingUserId.id)
 
                         //Gerar código de verificação
-                        const generate = new VerificationCode()
-                        const code = generate.generate()
+                        //const generate = new VerificationCode()
+                        //const code = generate.generate()
 
-                        try {
-                            //Enviar email de verificação
-                            const emailResult = await sendEmail("eucleniocadete@gmail.com", code)
+                        //Enviar email de verificação
+                        const { valid, error } = await sendEmailWithOTP("eucleniocadete@gmail.com")
 
-                            if(emailResult.valid){
-                                try {
-                                    const idCode = await prisma.verificationCode.create({
-                                        data: {
-                                            code: Number(code),
-                                            email: pendingUserId.email, 
-                                        }
-                                    })
-
-                                    await redisClient.set("CodeId", idCode.id)
-
-                                    return {
-                                        valid: emailResult.valid,
-                                        message: "Foi enviado um código de verificação no seu email"
-                                    }
-
-                                } catch (error) {
-                                    return {error: "Ocorreu um erro ao armazenar informações"}
-                                }
-                            }
-
+                        if(valid){
                             return {
-                                valid: false,
-                                message: emailResult.error
+                                valid: valid,
+                                message: "Foi enviado um código de verificação no seu email"
                             }
-
-                        } catch (error) {
-                            return {error: "Não foi possível enviar código de verificação"}
                         }
+
+                        return {
+                            valid: false,
+                            message: error
+                        }
+                        
                     } catch (error) {
                         return {error: "Ocooreu um erro inesperado"}
                     }
@@ -273,153 +237,114 @@ class AuthModel {
     }
 
     async verifyCode(code: string){
-        try {
-            const codeId = await redisClient.get("CodeId")
+        const email = await redisClient.get("email")
 
+        const { valid, error } = await verifyOTPCode(email!, code)
+
+        if(valid){
             try {
-                const isValidCode = await prisma.verificationCode.findFirst({
-                    where: {
-                        code: Number(code),
-                        used: false
-                    }
-                })
+                const pedingUserId = await redisClient.get("pendingUserId")
 
-                if(!isValidCode){
+                const userData = await prisma.users.findFirst({
+                    where: {id: String(pedingUserId)}
+                })
+                
+                if(!userData){
                     return {
                         valid: false,
-                        message: "Código inválido"
+                        message: "Não foi possível validar seus dados"
                     }
                 }
 
-                const classCode = new VerificationCode()
-                const validCode = classCode.verify(code)
-
-                if(validCode){
-                    try {
-                        await prisma.verificationCode.update({
-                            where: {id: String(codeId)},
-                            data: {
-                                used: true
-                            }
-                        })
-
+                switch (userData.rule) {
+                    case "carrier":
                         try {
-                            const pedingUserId = await redisClient.get("pendingUserId")
-
-                            const userData = await prisma.users.findFirst({
-                                where: {id: String(pedingUserId)}
+                            await prisma.users.update({
+                                where: {
+                                    id: userData.id
+                                },
+                                data: {
+                                    status: "active"
+                                }
                             })
-                            
-                            if(!userData){
-                                return {
-                                    valid: false,
-                                    message: "Não foi possível validar seus dados"
+
+                            await prisma.carriers.create({
+                                data: {
+                                    carrierId: userData.id,
                                 }
-                            }
+                            })
 
-                            try {
-                                
-                                switch (userData.rule) {
-                                    case "carrier":
-                                        try {
-                                            await prisma.users.update({
-                                                where: {
-                                                    id: userData.id
-                                                },
-                                                data: {
-                                                    status: "active"
-                                                }
-                                            })
-
-                                            await prisma.carriers.create({
-                                                data: {
-                                                    carrierId: userData.id,
-                                                }
-                                            })
-
-                                        } catch (error) {
-                                            return {error: "Ocorreu um erro inesperado"}
-                                        }
-                                        break;
-                                    case "consumer":
-                                        try {
-                                            await prisma.users.update({
-                                                where: {
-                                                    id: userData.id
-                                                },
-                                                data: {
-                                                    status: "active"
-                                                }
-                                            })
-                                            await prisma.consumers.create({
-                                                data: {consumerId: userData.id}
-                                            })
-
-                                        } catch (error) {
-                                            return {error: "Ocorreu um erro inesperado"}
-                                        }
-                                        break
-                                    default:
-                                        try {
-                                            //Criar token de acesso
-                                            const token = jwt.sign(
-                                                {userId: userData.id, rule: userData.rule},
-                                                process.env.SECRET_KEY!,
-                                                {expiresIn: "1d"}
-                                            )
-
-                                            return {
-                                                valid: true,
-                                                message: "Código verificado com sucesso",
-                                                token: token,
-                                                data: {
-                                                    id: userData.id,
-                                                    name: userData.name,
-                                                    email: userData.email,
-                                                    phone: userData.phone,
-                                                    province: userData.province,
-                                                    adress: userData.adress
-                                                }
-                                            }
-
-                                        } catch (error) {
-                                            return {error: "Ocorreu um erro inesperado"}
-                                        }
-                                        break
-                                }
-
-                                //Criar token de acesso
-                                const token = jwt.sign(
-                                    {userId: userData.id, rule: userData.rule},
-                                    process.env.SECRET_KEY!,
-                                    {expiresIn: "1d"}
-                                )
-
-                                return {
-                                    valid: true,
-                                    message: "Conta verificada com sucesso",
-                                    token: token
-                                }
-                            } catch (error) {
-                                return {error: "Não foi possível verificar sua conta"}
-                            }
                         } catch (error) {
-                            return {error: "Não foi possível validar seus dados"}
+                            return {error: "Ocorreu um erro inesperado"}
                         }
-                    } catch (error) {
-                        return {error: "Não foi possível verficar código"}
-                    }
+                        break;
+                    case "consumer":
+                        try {
+                            await prisma.users.update({
+                                where: {
+                                    id: userData.id
+                                },
+                                data: {
+                                    status: "active"
+                                }
+                            })
+                            await prisma.consumers.create({
+                                data: {consumerId: userData.id}
+                            })
+
+                        } catch (error) {
+                            return {error: "Ocorreu um erro inesperado"}
+                        }
+                        break
+                    default:
+                        try {
+                            //Criar token de acesso
+                            const token = jwt.sign(
+                                {userId: userData.id, rule: userData.rule},
+                                process.env.SECRET_KEY!,
+                                {expiresIn: "1d"}
+                            )
+
+                            return {
+                                valid: true,
+                                message: "Código verificado com sucesso",
+                                token: token,
+                                data: {
+                                    id: userData.id,
+                                    name: userData.name,
+                                    email: userData.email,
+                                    phone: userData.phone,
+                                    province: userData.province,
+                                    adress: userData.adress
+                                }
+                            }
+
+                        } catch (error) {
+                            return {error: "Ocorreu um erro inesperado"}
+                        }
+                        break
                 }
+
+                //Criar token de acesso
+                const token = jwt.sign(
+                    {userId: userData.id, rule: userData.rule},
+                    process.env.SECRET_KEY!,
+                    {expiresIn: "1d"}
+                )
 
                 return {
-                    valid: false,
-                    error: "Código inválido"
+                    valid: true,
+                    message: "Conta verificada com sucesso",
+                    token: token
                 }
             } catch (error) {
-                return {error: "Não foi possível verificar código"}
+                return {error: "Não foi possível validar seus dados"}
             }
-        } catch (error) {
-            return {error: "Ocorreu um erro inesperado"}
+        }
+
+        return {
+            valid: false, 
+            error: error
         }
     }
 
