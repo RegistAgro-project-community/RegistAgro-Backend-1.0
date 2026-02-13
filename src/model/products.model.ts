@@ -120,9 +120,11 @@ export class ProductsModel {
                 if(!farmId){
                     return {error: "Informações inválidas"}
                 }
+                const api = process.env.ENV == "dev" ? "http://localhost:5500" : "https://api-registagro.onrender.com"
 
+                const urlImg = `${api}/upload/products/${uploadResult.filename}`
                 try {
-                    const urlImg = `https://api-registagro.onrender.com/upload/products/${uploadResult.filename}`
+                    
     
                     const productRow = await prisma.products.update({
                         where: {
