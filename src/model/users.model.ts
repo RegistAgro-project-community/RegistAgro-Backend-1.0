@@ -78,9 +78,11 @@ export class UsersModel {
                     error: uploadResult.error
                 }
             }
+            
+            const api = process.env.ENV == "dev" ? "http://localhost:5500" : "https://api-registagro.onrender.com"
 
+            const profileUrl = `${api}/upload/users/${uploadResult.filename}`
             try {
-                const profileUrl = `https://api-registagro.onrender.com/upload/users/${uploadResult.filename}`
 
                 const userRow = await prisma.users.update({
                     where: {
