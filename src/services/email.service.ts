@@ -1,38 +1,41 @@
 import 'dotenv/config'
-import { transporter } from '../config/email.conf.js'
+import { createClient } from '@supabase/supabase-js'
 
-async function sendEmail(email: string, code: string){
-    //Enviar email
-    try {
-        await transporter.sendMail({
-                from: process.env.USER,
-                to: email,
-                subject: "Código de Verificação - RegistAgro",
-                html: `
-                    <h2>Verificação de Segurança - RegistAgro</h2>
 
-                    <p>Olá, </p>
-
-                    <p>Recebemos uma solicitação de acesso à sua conta no <strong>RegistAgro</strong>.</p>
-
-                    <p>Seu código de verificação é:</p>
-
-                    <h1 style="letter-spacing: 4px; font-size: 32px; margin: 10px 0;">${code}</h1>
-
-                    <p><strong>O código expira em 10 minutos.</strong></p>
-
-                    <p>Se você não solicitou este código, basta ignorar este e-mail.</p>
-
-                    <p>Atenciosamente,<br>
-                    <strong>Equipe RegistAgro</strong></p>
-
-                `
-            })
-
-        return {valid: true}
-    } catch (error) {
-        return {error: "Não foi possível enviar email de verificação"}
-    }
+interface SendEmail {
+    valid?: boolean,
+    error?: string
+    data?: object
 }
 
-export { sendEmail }
+const supabase = createClient(
+    process.env.SUPABASE_URL!,
+    process.env.SUPABASE_KEY!
+)
+
+export async function sendEmailWithOTP(email: string): Promise<SendEmail>{
+    const { data, error } = await supabase.auth.signInWithOtp({
+        email: email,
+        options: {shouldCreateUser: true,}
+    })
+
+    if(error){
+        return {error: "Não foi possível enviar email de verificação"}
+    }
+
+    return {valid: true}
+}
+
+export async function verifyOTPCode(email: string, code: string): Promise<SendEmail> {
+    const { error, data } = await supabase.auth.verifyOtp({
+        email: email,
+        token: code,
+        type: 'email'
+    })
+
+    if(!error){
+        return {valid: true, data: data}
+    }
+
+    return {error: "Código expirado ou inválido"}
+}
