@@ -1,5 +1,5 @@
 export const getProductPath = {
-    '/products/farms/get/{id}': {
+    '/products/farms/get/product/{id}': {
         get: {
             tags: ["Products"],
             summary: "Ver um produto",
