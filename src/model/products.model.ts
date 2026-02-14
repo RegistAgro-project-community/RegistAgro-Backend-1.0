@@ -319,8 +319,7 @@ export class ProductsModel {
                 }
     
                 return {
-                    product: productRow, 
-                    farmId: farmId.id
+                    product: productRow
                 }
             } catch (error) {
                 if(notFound(error)){
@@ -371,6 +370,86 @@ export class ProductsModel {
             }
         } catch (error) {
             return {error: "Ocorreu um erro ao verificar informaçoes"}
+        }
+    }
+
+    async consumerGet(productId: string){
+        try {
+            const productRow = await prisma.products.findFirst({
+                where: {
+                    AND: [
+                        {id: productId}, 
+                        {status: "active"}
+                    ]
+                },
+                select: {
+                    id: true,
+                    name: true,
+                    description: true,
+                    price: true,
+                    stock: true,
+                    unit: true,
+                    transport: true,
+                    type: true,
+                    photo: true,
+                    created_at: true,
+                    farmId: true
+                }
+            })
+
+            if(!productRow){
+                return {info: "Produto não encontrado"}
+            }
+
+            return {
+                product: productRow
+            }
+        } catch (error) {
+            if(notFound(error)){
+                return {info: "Produto não encontrado"}
+            }
+
+            return {error: "Não foi possível carregar produto"}
+        }
+    }
+
+    async consumerGetAll(userId: string){
+        try {
+            const consumerId = await prisma.consumers.findFirst({
+                where: {consumerId: userId},
+                select: {id: true}
+            })
+
+            if(!consumerId){
+                return {info: "Informações inválidas"}
+            }
+
+            try {
+                const products = await prisma.products.findMany({
+                    where: {status: "active"},
+                    select: {
+                        id: true,
+                        name: true,
+                        description: true,
+                        photo: true,
+                        price: true,
+                        type: true,
+                        farmId: true,
+                        stock: true,
+                        unit: true
+                    }
+                })
+
+                if(products.length == 0){
+                    return {info: "Ainda não existem produtos na RegistAgro"}
+                }
+
+                return {products: products}
+            } catch (error) {
+                return {error: "Ocorreu um erro ao carregar produtos"}
+            }
+        } catch (error) {
+            return {error: "Não foi possível verificar informações"}
         }
     }
 }
