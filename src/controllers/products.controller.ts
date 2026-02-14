@@ -164,19 +164,37 @@ class ProductController {
     }
 
     async consumerRead(req: Request, res: Response){
-        const { farmId, id: productId } = req.params
+        const productId = req.params['id']
 
-        if(!farmId || !productId) {
-            return res.status(400).json({ error: "Parâmetros inválidos" })
+        if(!productId) {
+            return res.status(400).json({ error: "Parâmetro inválidos" })
         }
 
         try {
-            const getResult = await productModel.get(productId as string, farmId as string)
+            const getResult = await productModel.consumerGet(productId as string)
 
             if(getResult.info){
                 return res.status(404).json(getResult)
             }
             if(getResult.error){
+                return res.status(400).json(getResult)
+            }
+
+            return res.status(200).json(getResult)
+        } catch (error) {
+            errors(res)
+        }
+    }
+
+    async consumerGetAll(req: Request, res: Response){
+        const userId = req.user?.id
+
+        try {
+            const getResult = await productModel.consumerGetAll(userId!)
+
+            if(getResult.info){
+                return res.status(404).json(getResult)
+            }else if(getResult.error){
                 return res.status(400).json(getResult)
             }
 
