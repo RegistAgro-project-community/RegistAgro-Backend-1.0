@@ -1,5 +1,5 @@
 export const updateProductPath = {
-    '/products/update/{id}': {
+    '/products/update/product/{id}': {
         put: {
             tags: ["Products"],
             summary: "Atualizar dados de um produto",
