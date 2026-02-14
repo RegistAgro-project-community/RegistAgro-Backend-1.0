@@ -18,7 +18,7 @@ import { updateProductSchema } from "./schemas/update-product.js"
 import { getAllProductsPath } from "./paths/getAll-products.js"
 import { getProductPath } from "./paths/get-product.js"
 import { deleteProductPath } from "./paths/delete-product.js"
-import { consumerGetAllProductPath } from "./paths/consumer-getAll-product.js"
+import { consumerGetAllProductPath } from "./paths/consumer-getAll-FarmProduct.js"
 import { consumerGetAProductPath } from "./paths/consumer-get-product.js"
 import { userUpdatePath } from "./paths/user-update.path.js"
 import { updateUserSchema } from "./schemas/update-user.schema.js"
@@ -35,6 +35,7 @@ import { cancelOrdersPath } from "./paths/cancel-orders.js"
 import { updateOrdersPath } from "./paths/update-orders.path.js"
 import { deleteOrderPath } from "./paths/delete-order.js"
 import { updateOrdersSchema } from "./schemas/update-orders.schema.js"
+import { consumerGetEveryProductPath } from "./paths/consumer-getAll-products.js"
 
 const swaggerOptions = {
   definition: {
@@ -79,6 +80,7 @@ const swaggerOptions = {
         ...deleteProductPath,
         ...consumerGetAllProductPath,
         ...consumerGetAProductPath,
+        ...consumerGetEveryProductPath,
         ...userUpdatePath,
         ...deleteUserPath,
         ...userProfilePhotoPath,
