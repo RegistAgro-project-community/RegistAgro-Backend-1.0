@@ -1,5 +1,5 @@
 export const deleteProductPath = {
-    '/products/delete/{id}': {
+    '/products/delete/product/{id}': {
         delete: {
             tags: ["Products"],
             summary: "Apagar um produto",
