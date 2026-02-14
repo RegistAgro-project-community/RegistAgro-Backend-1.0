@@ -123,6 +123,24 @@ export class OrdersModel {
                     }
                 })
 
+                const totalOrders = await prisma.orders.count({
+                    where: {farmId: farmRow.id,}
+                })
+
+                const totalPendentsOrders = await prisma.orders.count({
+                    where: {
+                        farmId: farmRow.id,
+                        status: "pendent"
+                    }
+                })
+
+                const totalOngoingOrders = await prisma.orders.count({
+                    where: {
+                        farmId: farmRow.id,
+                        status: "ongoing"
+                    }
+                })
+
                 if(ordersRow.length == 0){
                     return {info: "Você ainda não possui nenhum pedido"}
                 }
@@ -168,7 +186,12 @@ export class OrdersModel {
                     })
                 )
 
-                return {orders: orders}
+                return {
+                    orders: orders,
+                    total: totalOrders,
+                    pendents: totalPendentsOrders,
+                    ongoing: totalOngoingOrders
+                }
             } catch (error) {
                 return {error: "Não foi possível carregar os pedidos"}
             }
