@@ -1,5 +1,5 @@
 export const productPhotoPath = {
-    '/products/upload/{id}': {
+    '/products/upload/product/{id}': {
         patch: {
             tags: ["Products"],
             summary: "Atualizar foto de um produto",
