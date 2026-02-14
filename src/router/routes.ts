@@ -22,13 +22,14 @@ router.post('/auth/login', authController.login)
 
 //Products
 router.post('/products/create', auth, authorization("farm", "create"), productsController.create)
-router.patch('/products/upload/:id', auth, authorization("farm", "update"), productsController.productPhoto)
-router.put('/products/update/:id', auth, authorization("farm", "update"), productsController.update)
-router.get('/products/farms/get', auth, authorization("farm", "read"), productsController.getAll)
-router.get('/products/farms/get/:id', auth, authorization("farm", "read"), productsController.get)
-router.delete('/products/delete/:id', auth, authorization("farm", "delete"), productsController.delete)
-router.get('/products/consumers/get/:id', auth, authorization("farm", "read"), productsController.consumerReadAll)
-router.get('/products/consumers/farm/:farmId/product/:id', auth, authorization("farm", "read"), productsController.consumerRead)
+router.patch('/products/upload/product/:id', auth, authorization("farm", "update"), productsController.productPhoto)
+router.put('/products/update/product/:id', auth, authorization("farm", "update"), productsController.update)
+router.get('/products/farms/get/products', auth, authorization("farm", "read"), productsController.getAll)
+router.get('/products/farms/get/product/:id', auth, authorization("farm", "read"), productsController.get)
+router.delete('/products/delete/product/:id', auth, authorization("farm", "delete"), productsController.delete)
+router.get('/products/consumers/get/farm/:id', auth, authorization("farm", "read"), productsController.consumerReadAll)
+router.get('/products/consumers/product/:id', auth, authorization("farm", "read"), productsController.consumerRead)
+router.get('/products/consumers/get/products', auth, authorization("consumer", "read"), productsController.consumerGetAll)
 
 //Users
 router.put('/users/update', auth, usersController.update)
