@@ -43,7 +43,7 @@ const swaggerOptions = {
 
     info: {
       title: "RegistAgro API",
-      description: "Oficial RegistAgro documentation",
+      description: "Oficial RegistAgro API documentation",
       version: "1.0.0"
     },
 
