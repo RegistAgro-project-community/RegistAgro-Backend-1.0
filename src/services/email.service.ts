@@ -16,7 +16,7 @@ const supabase = createClient(
 export async function sendEmailWithOTP(email: string): Promise<SendEmail>{
     const { data, error } = await supabase.auth.signInWithOtp({
         email: email,
-        options: {shouldCreateUser: true,}
+        options: {shouldCreateUser: false}
     })
 
     if(error){
