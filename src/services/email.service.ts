@@ -20,7 +20,6 @@ export async function sendEmailWithOTP(email: string): Promise<SendEmail>{
     })
 
     if(error){
-        console.log(error)
         return {error: "Não foi possível enviar email de verificação"}
     }
 
