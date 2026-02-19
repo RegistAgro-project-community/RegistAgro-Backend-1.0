@@ -425,26 +425,59 @@ export class ProductsModel {
             }
 
             try {
-                const products = await prisma.products.findMany({
-                    where: {status: "active"},
+                const farmsAndProducts = await prisma.farms.findMany({
+                    where: {farm: {status: "active"}},
                     select: {
-                        id: true,
-                        name: true,
-                        description: true,
-                        photo: true,
-                        price: true,
-                        type: true,
-                        farmId: true,
-                        stock: true,
-                        unit: true
+                        farm: {
+                            select: {
+                                id: true,
+                                name: true,
+                                profile: true,
+                            }
+                        },
+                        products: {
+                            select: {
+                                id: true,
+                                name: true,
+                                description: true,
+                                photo: true,
+                                price: true,
+                                type: true,
+                                stock: true,
+                                unit: true,
+                                transport: true
+                            }
+                        }
                     }
+                })
+
+                //const products = await prisma.products.findMany({
+                    //where: {status: "active"},
+                   // select: {
+                   //     id: true,
+                    //    name: true,
+                    //    description: true,
+                     //   photo: true,
+                    //    price: true,
+                    //    type: true,
+                    //    farmId: true,
+                    //    stock: true,
+                    //    unit: true,
+                    //    transport: true
+                  //  },
+                //})
+
+                var products = []
+
+                products = farmsAndProducts.map(key =>{
+                    return key.products
                 })
 
                 if(products.length == 0){
                     return {info: "Ainda não existem produtos na RegistAgro"}
                 }
 
-                return {products: products}
+                return {products: farmsAndProducts}
             } catch (error) {
                 return {error: "Ocorreu um erro ao carregar produtos"}
             }
