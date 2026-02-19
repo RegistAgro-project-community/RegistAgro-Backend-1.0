@@ -460,7 +460,7 @@ export class ProductsModel {
                             name: key.name,
                             description: key.description,
                             photo: key.photo,
-                            price: `${key.price}Kz`,
+                            price: `${key.price}Kz/Kg`,
                             type: key.type,
                             qtd: key.stock,
                             unit: key.unit == 't' ? 'ton' : key.unit,
