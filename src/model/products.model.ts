@@ -436,6 +436,7 @@ export class ProductsModel {
                             }
                         },
                         products: {
+                            where: {status: "active"},
                             select: {
                                 id: true,
                                 name: true,
@@ -451,33 +452,28 @@ export class ProductsModel {
                     }
                 })
 
-                //const products = await prisma.products.findMany({
-                    //where: {status: "active"},
-                   // select: {
-                   //     id: true,
-                    //    name: true,
-                    //    description: true,
-                     //   photo: true,
-                    //    price: true,
-                    //    type: true,
-                    //    farmId: true,
-                    //    stock: true,
-                    //    unit: true,
-                    //    transport: true
-                  //  },
-                //})
-
-                var products = []
-
-                products = farmsAndProducts.map(key =>{
-                    return key.products
-                })
+                const products = farmsAndProducts.filter(key => key.products.length > 0).map(key =>({
+                    farm: key.farm,
+                    products: key.products.map(key =>{
+                        return {
+                            id: key.id,
+                            name: key.name,
+                            description: key.description,
+                            photo: key.photo,
+                            price: `${key.price}Kz`,
+                            type: key.type,
+                            qtd: key.stock,
+                            unit: key.unit == 't' ? 'ton' : key.unit,
+                            transport: `Camião ${key.transport}`
+                        }
+                    })
+                }))
 
                 if(products.length == 0){
-                    return {info: "Ainda não existem produtos na RegistAgro"}
+                    return {info: "Ainda não existe produtos na RegistAgro"}
                 }
 
-                return {products: farmsAndProducts}
+                return {data: products}
             } catch (error) {
                 return {error: "Ocorreu um erro ao carregar produtos"}
             }
