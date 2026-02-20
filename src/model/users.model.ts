@@ -59,7 +59,7 @@ export class UsersModel {
     }
 
     async profilePhoto(userId: string, img: UploadedFile | undefined){
-        const url = path.join(process.cwd(), "src", "upload", "users")
+        const url = process.env.ENV == 'dev' ? path.join(process.cwd(), "src", "upload", "users") : "upload/users"
 
         try {
             const uploadResult = await image(img, url, "user")
@@ -78,10 +78,11 @@ export class UsersModel {
                     error: uploadResult.error
                 }
             }
-            
+
             const api = process.env.ENV == "dev" ? "http://localhost:5500" : "https://api-registagro.onrender.com"
 
             const profileUrl = `${api}/upload/users/${uploadResult.filename}`
+
             try {
 
                 const userRow = await prisma.users.update({
@@ -90,7 +91,7 @@ export class UsersModel {
                         status: "active",
                     },
                     data: {
-                        profile: profileUrl
+                        profile: process.env.ENV == 'dev' ? profileUrl : uploadResult.filename!
                     }
                 })
 
