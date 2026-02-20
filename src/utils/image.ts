@@ -14,6 +14,12 @@ export async function image(img: UploadedFile | undefined, url: string, to: "use
     
     if(!img){
         return {success: false, error: "Nenhuma imagem foi enviada"}
+    }
+
+    const size = 5 * 1024 * 1024
+    
+    if(img.size > size){
+        return {success: false, error: "Imagem muito grande"}
     } 
     
     const formatImg = path.extname(img.name).replace(".", "").toLowerCase()
