@@ -2,7 +2,7 @@ import dayjs from "dayjs";
 import type { UploadedFile } from "express-fileupload";
 import path from "node:path";
 import 'dotenv/config'
-import { supabase } from "../../lib/supabase";
+import { supabase } from "../../lib/supabase.js";
 
 export interface uploadResult {
     ok: boolean,
@@ -24,7 +24,9 @@ export async function upload(img: UploadedFile, format: string, url: string, to:
                 }
             })
         }else{
-            const { data, error } = await supabase.storage.from('Registagro').upload(pathUrl, img.data, {
+            const { data, error } = await supabase.storage.from('Registagro').upload(
+                pathUrl, 
+                img.data, {
                 contentType: img.mimetype,
                 upsert: false
             })
