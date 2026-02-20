@@ -19,7 +19,7 @@ export async function image(img: UploadedFile | undefined, url: string, to: "use
     const size = 5 * 1024 * 1024
     
     if(img.size > size){
-        return {success: false, error: "Imagem muito grande"}
+        return {success: false, error: "Imagem muito grande. Limite é 5MB"}
     } 
     
     const formatImg = path.extname(img.name).replace(".", "").toLowerCase()
