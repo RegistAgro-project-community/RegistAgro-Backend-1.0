@@ -12,6 +12,9 @@ const router = Router()
 //Healthy
 router.get('/', healthyRoute)
 
+//Token
+router.get('/token', auth, authController.verifyToken)
+
 //Auth
 router.post('/auth/signup/:rule', authController.signup)
 router.get('/auth/signup/verify/:code', authController.verifyCode)
