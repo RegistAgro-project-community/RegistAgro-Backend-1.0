@@ -93,7 +93,8 @@ export class ProductsModel {
     }
 
     async productPhoto(userId: string, productId: string, img: UploadedFile | undefined){
-        const url = path.join(process.cwd(), "src", "upload", "products")
+        const url = process.env.ENV == 'dev' ? path.join(process.cwd(), "src", "upload", "products") : "upload/products"
+
         try {
             const uploadResult = await image(img, url, "product")
 
@@ -120,19 +121,21 @@ export class ProductsModel {
                 if(!farmId){
                     return {error: "Informações inválidas"}
                 }
+
                 const api = process.env.ENV == "dev" ? "http://localhost:5500" : "https://api-registagro.onrender.com"
 
                 const urlImg = `${api}/upload/products/${uploadResult.filename}`
+
                 try {
-                    
-    
                     const productRow = await prisma.products.update({
                         where: {
                             id: productId,
                             farmId: farmId.id,
                             status: "active"
                         },
-                        data: {photo: urlImg}
+                        data: {
+                            photo: process.env.ENV == 'dev' ? urlImg : uploadResult.filename!
+                        }
                     })
     
                     if(!productRow){
