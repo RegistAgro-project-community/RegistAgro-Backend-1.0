@@ -1,17 +1,11 @@
 import 'dotenv/config'
-import { createClient } from '@supabase/supabase-js'
-
+import { supabase } from '../../lib/supabase.js'
 
 interface SendEmail {
     valid?: boolean,
     error?: string
     data?: object
 }
-
-const supabase = createClient(
-    process.env.SUPABASE_URL!,
-    process.env.SUPABASE_KEY!
-)
 
 export async function sendEmailWithOTP(email: string): Promise<SendEmail>{
     const { data, error } = await supabase.auth.signInWithOtp({
