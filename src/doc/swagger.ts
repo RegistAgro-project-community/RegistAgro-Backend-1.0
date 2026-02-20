@@ -36,6 +36,7 @@ import { updateOrdersPath } from "./paths/update-orders.path.js"
 import { deleteOrderPath } from "./paths/delete-order.js"
 import { updateOrdersSchema } from "./schemas/update-orders.schema.js"
 import { consumerGetEveryProductPath } from "./paths/consumer-getAll-products.js"
+import { verifyAcessTokenPath } from "./paths/verifyAcessToken.js"
 
 const swaggerOptions = {
   definition: {
@@ -59,6 +60,7 @@ const swaggerOptions = {
     ],
 
     tags: [
+      { name: "Token", description: "Confirma validade do token de acesso"},
       { name: "Auth", description: "Authentication routes" },
       { name: "Products", description: "Farm Products"},
       { name: "Users", description: "Users actions routes"},
@@ -66,32 +68,33 @@ const swaggerOptions = {
     ],
 
     paths: {
-        ...signupPath,
-        ...verificationCodePath,
-        ...nifPath,
-        ...farmPassordPath,
-        ...farmLoginPath,
-        ...loginPath,
-        ...createProductPath,
-        ...productPhotoPath,
-        ...updateProductPath,
-        ...getAllProductsPath,
-        ...getProductPath,
-        ...deleteProductPath,
-        ...consumerGetAllProductPath,
-        ...consumerGetAProductPath,
-        ...consumerGetEveryProductPath,
-        ...userUpdatePath,
-        ...deleteUserPath,
-        ...userProfilePhotoPath,
-        ...userProfilePath,
-        ...createOrderPath,
-        ...getAllOrdersFarmsPath,
-        ...acceptOrdersPath,
-        ...sentOrdersPath,
-        ...cancelOrdersPath,
-        ...updateOrdersPath,
-        ...deleteOrderPath
+      ...verifyAcessTokenPath,
+      ...signupPath,
+      ...verificationCodePath,
+      ...nifPath,
+      ...farmPassordPath,
+      ...farmLoginPath,
+      ...loginPath,
+      ...createProductPath,
+      ...productPhotoPath,
+      ...updateProductPath,
+      ...getAllProductsPath,
+      ...getProductPath,
+      ...deleteProductPath,
+      ...consumerGetAllProductPath,
+      ...consumerGetAProductPath,
+      ...consumerGetEveryProductPath,
+      ...userUpdatePath,
+      ...deleteUserPath,
+      ...userProfilePhotoPath,
+      ...userProfilePath,
+      ...createOrderPath,
+      ...getAllOrdersFarmsPath,
+      ...acceptOrdersPath,
+      ...sentOrdersPath,
+      ...cancelOrdersPath,
+      ...updateOrdersPath,
+      ...deleteOrderPath
     },
 
     components: {
