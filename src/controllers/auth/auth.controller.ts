@@ -143,6 +143,10 @@ class AuthController {
             zodError(error, res)
         }
     }
+
+    async verifyToken(req: Request, res: Response){
+        return res.status(200).json({message: "Token verificado com sucesso"})
+    }
 }
 
 export default new AuthController()
