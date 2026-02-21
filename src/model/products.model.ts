@@ -38,7 +38,7 @@ export class ProductsModel {
                     return {info: "Este produto já foi cadastrado"}
                 }
 
-                const url = path.join(process.cwd(), "src", "upload", "products")
+                const url = process.env.ENV == 'dev' ? path.join(process.cwd(), "src", "upload", "products") : 'upload/products'
 
                 try {
                     const uploadResult = await image(img, url, "product")
@@ -59,8 +59,9 @@ export class ProductsModel {
 
                     const imgEnv = process.env.ENV! == 'dev' ? "http://localhost:5500" : "https://api-registagro.onrender.com"
 
+                    const urlImg = `${imgEnv}/upload/products/${uploadResult.filename}`
+
                     try {
-                        const urlImg = `${imgEnv}/upload/products/${uploadResult.filename}`
 
                         await prisma.products.create({
                             data: {
@@ -70,7 +71,7 @@ export class ProductsModel {
                                 stock: stock,
                                 unit: unit,
                                 type: type,
-                                photo: urlImg,
+                                photo: process.env.ENV == 'dev' ? urlImg : uploadResult.filename!,
                                 transport: transport,
                                 farmId: farmId.id
                             }
