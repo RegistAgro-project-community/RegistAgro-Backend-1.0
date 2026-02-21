@@ -136,46 +136,7 @@ export class UsersModel {
             }
 
             switch (userRow.rule) {
-                case "carrier":
-                    try {
-                        const carrierId = await prisma.carriers.findFirst({
-                            where: {carrierId: userId}
-                        })
-
-                        if(!carrierId){
-                            return {error: "Informações inválidas"}
-                        }
-
-                        return {
-                            message: "Dados carregado com sucesso",
-                            data: userRow,
-                            id: carrierId.id
-                        }
-                    } catch (error) {
-                        return {error: "Ocorreu um erro inesperado"}
-                    }
-                    break;
-                
-                case "consumer":
-                    try {
-                        const consumerId = await prisma.consumers.findFirst({
-                            where: {consumerId: userId}
-                        })
-
-                        if(!consumerId){
-                            return {error: "Informações inválidas"}
-                        }
-
-                        return {
-                            message: "Dados carregado com sucesso",
-                            data: userRow,
-                            id: consumerId.id
-                        }
-                    } catch (error) {
-                        return {error: "Ocorreu um erro inesperado"}
-                    }
-                    break
-                default:
+                case "farm":
                     try {
                         const farmId = await prisma.farms.findFirst({
                             where: {farmId: userId}
@@ -188,12 +149,18 @@ export class UsersModel {
                         return {
                             message: "Dados carregado com sucesso",
                             data: userRow,
-                            id: farmId.id
+                            nif: farmId.nif
                         }
                     } catch (error) {
                         return {error: "Ocorreu um erro inesperado"}
                     }
                     break;
+                default:
+                    return {
+                        message: "Dados carregado com sucesso",
+                        data: userRow
+                    }
+                    break
             }
         } catch (error) {
             if(notFound(error)){
