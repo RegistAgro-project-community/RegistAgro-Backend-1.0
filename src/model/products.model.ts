@@ -5,6 +5,7 @@ import { notFound } from "../errors/notFound.js";
 import type { UploadedFile } from 'express-fileupload';
 import { image } from "../utils/image.js";
 import 'dotenv/config.js'
+import { map } from "zod";
 
 export class ProductsModel {
     async create(img: UploadedFile | undefined,userId: string, name: string, description: string, price: number, stock: number, unit: Stock, type: ProductsType, transport: VehiclesType){
@@ -228,13 +229,13 @@ export class ProductsModel {
                             farmId: farmRow.id
                             ,
                             status: "active",
-                            stock: {lte: 10},
+                            stock: {lte: 5},
                             unit: "kg"
                         }
                     })
 
                     try {
-                        const products = await prisma.products.findMany({
+                        var products = await prisma.products.findMany({
                             where: {
                                 farmId: farmRow.id,
                                 status: "active"
@@ -257,14 +258,22 @@ export class ProductsModel {
                             return {info: "Você não ainda não possui nenhum produto"}
                         }
 
-                        if(rule == "consumer"){
+                        const farmProducts = products.map(key => {
                             return {
-                                products: products
+                                id: key.id,
+                                name: key.name,
+                                description: key.description,
+                                price: `${key.price}Kz/kg`,
+                                qtd: `${key.stock}${key.unit == 't' ? 'ton' : key.unit}`,
+                                transport: `Caminhão ${key.transport}`,
+                                type: key.type,
+                                photo: key.photo,
+                                created_at: key.created_at
                             }
-                        }
+                        })
 
                         return {
-                            products: products,
+                            products: farmProducts,
                             totalProducts: totalProdutos,
                             balance: `${farmRow.balance}Kz`,
                             low_stock: lowStock
