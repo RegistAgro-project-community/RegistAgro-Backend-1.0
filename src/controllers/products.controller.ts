@@ -145,10 +145,10 @@ class ProductController {
 
     async consumerReadAll(req: Request, res: Response){
         const farmId = req.params.id
-        const rule = req.user?.rule
+        const userId = req.user?.id
         
         try {
-            const getResult = await productModel.getAll(farmId as string, rule as Rule)
+            const getResult = await productModel.farmerProducts(userId!, farmId as string)
 
             if(getResult.info){
                 return res.status(404).json(getResult)
@@ -165,13 +165,14 @@ class ProductController {
 
     async consumerRead(req: Request, res: Response){
         const productId = req.params['id']
+        const userId = req.user?.id
 
         if(!productId) {
             return res.status(400).json({ error: "Parâmetro inválidos" })
         }
 
         try {
-            const getResult = await productModel.consumerGet(productId as string)
+            const getResult = await productModel.consumerGet(productId as string, userId!)
 
             if(getResult.info){
                 return res.status(404).json(getResult)
