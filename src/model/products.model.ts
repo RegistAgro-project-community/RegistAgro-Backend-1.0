@@ -209,10 +209,17 @@ export class ProductsModel {
         try {
             const farmRow = await prisma.farms.findFirst({
                 where: {farmId: userId},
-                select: {id: true, balance: true}
+                select: {id: true, balance: true, farmId: true}
             })
 
-            if(!farmRow){
+            const userRow = await prisma.users.findFirst({
+                where: {
+                    id: farmRow?.farmId!,
+                    status: "active"
+                }
+            })
+
+            if(!farmRow ||!userRow){
                 return {error: "Informações inválidas"}
             }
             try {
