@@ -208,14 +208,16 @@ class AuthModel {
 
                         //Enviar email de verificação
                         const { valid, error } = await sendEmailWithOTP("eucleniocadete@gmail.com")
-
+                        
                         if(valid){
+                            await redisClient.set("email", "eucleniocadete@gmail.com")
+                            
                             return {
                                 valid: valid,
                                 message: "Foi enviado um código de verificação no seu email"
                             }
                         }
-
+                        
                         return {
                             valid: false,
                             message: error
