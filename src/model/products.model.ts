@@ -205,7 +205,7 @@ export class ProductsModel {
         }
     }
 
-    async getAll(userId: string, rule?: Rule){
+    async getAll(userId: string){
         try {
             const farmRow = await prisma.farms.findFirst({
                 where: {farmId: userId},
@@ -214,7 +214,7 @@ export class ProductsModel {
 
             const userRow = await prisma.users.findFirst({
                 where: {
-                    id: farmRow?.farmId!,
+                    id: userId,
                     status: "active"
                 }
             })
@@ -300,14 +300,102 @@ export class ProductsModel {
         }
     }
 
+    async farmerProducts(userId: string, farmId: string){
+        try {
+            const userRow = await prisma.users.findFirst({
+                where: {
+                    id: userId,
+                    status: "active"
+                }
+            })
+
+            const farmProducts = await prisma.farms.findFirst({
+                where: {
+                    farm: {
+                        id: farmId,
+                        status: "active"
+                    }
+                },
+                select: {
+                    farm: {
+                        select: {
+                            id: true,
+                            name: true,
+                            email: true,
+                            phone: true,
+                            profile: true,
+                            province: true,
+                            adress: true
+                        } 
+                    },
+                    products: {
+                        where: {status: "active"},
+                        select: {
+                            id: true,
+                            name: true,
+                            description: true,
+                            price: true,
+                            stock: true,
+                            unit: true,
+                            transport: true,
+                            photo: true,
+                            type: true
+                        }
+                    },
+                    nif: true
+                }
+            })
+
+            if(!userRow || !farmProducts){
+                return {error: "Informações inválidas"}
+            }
+
+            if(farmProducts.products.length == 0){
+                return {info: "Esta fazenda não possui nenhum produto"}
+            }
+
+            const farmRow = {
+                farm: farmProducts.farm,
+                products: farmProducts.products.map(key =>{
+                    return {
+                        id: key.id,
+                        name: key.name,
+                        description: key.description,
+                        price: `${key.price}Kz/kg`,
+                        stock: key.stock,
+                        unit: key.unit == "t" ? "ton" : key.unit,
+                        transport: `Caminhão ${key.transport}`,
+                        photo: key.photo,
+                        type: key.type
+                    }
+                }),
+                nif: farmProducts.nif
+            }
+
+            return {
+                message: "Dados carregados com sucesso",
+                data: farmRow
+            }
+        } catch (error) {
+            return {error: "Ocorreu um erro ao verificar informações"}
+        }
+    }
+
     async get(productId: string, userId: string){
         try {
             const farmId = await prisma.farms.findFirst({
                 where: {farmId: userId},
                 select: {id: true}
             })
+
+            const userRow = await prisma.users.findFirst({
+                where: {
+                    id: userId,
+                    status: "active"
+                }
+            })
             
-            if(!farmId){
+            if(!farmId || userRow){
                 return {error: "Informações inválida"}
             }
 
@@ -361,7 +449,14 @@ export class ProductsModel {
                 select: {id: true}
             })
 
-            if(!farmId){
+            const userRow = await prisma.users.findFirst({
+                where: {
+                    id: userId,
+                    status: "active"
+                }
+            })
+
+            if(!farmId || !userRow){
                 return {error: "Informações inválida"}
             }
 
@@ -393,44 +488,105 @@ export class ProductsModel {
         }
     }
 
-    async consumerGet(productId: string){
+    async consumerGet(productId: string, userId: string){
         try {
-            const productRow = await prisma.products.findFirst({
+            const userRow = await prisma.consumers.findFirst({
                 where: {
-                    AND: [
-                        {id: productId}, 
-                        {status: "active"}
-                    ]
-                },
-                select: {
-                    id: true,
-                    name: true,
-                    description: true,
-                    price: true,
-                    stock: true,
-                    unit: true,
-                    transport: true,
-                    type: true,
-                    photo: true,
-                    created_at: true,
-                    farmId: true
+                    consumer: {
+                        id: userId,
+                        status: "active"
+                    }
                 }
             })
-
-            if(!productRow){
-                return {info: "Produto não encontrado"}
+    
+            if(!userRow){
+                return {error: "Informações inválidas"}
             }
 
-            return {
-                product: productRow
+            try {
+                const productRow = await prisma.products.findFirst({
+                    where: {
+                        AND: [
+                            {id: productId}, 
+                            {status: "active"}
+                        ]
+                    },
+                    select: {
+                        id: true,
+                        name: true,
+                        description: true,
+                        price: true,
+                        stock: true,
+                        unit: true,
+                        transport: true,
+                        type: true,
+                        photo: true,
+                        created_at: true,
+                        farmId: true
+                    }
+                })
+    
+                if(!productRow){
+                    return {info: "Produto não encontrado"}
+                }
+
+                const farmProfile = await prisma.farms.findFirst({
+                    where: {id: productRow.farmId},
+                    select: {
+                        farm: {
+                            select: {
+                                id: true,
+                                name: true,
+                                email: true,
+                                phone: true,
+                                profile: true,
+                                province: true,
+                                adress: true
+                            }
+                        },
+                        nif: true
+                    }
+                })
+
+                const farm = {
+                    id: farmProfile?.farm.id,
+                    name: farmProfile?.farm.name,
+                    email: farmProfile?.farm.email,
+                    phone: farmProfile?.farm.phone,
+                    profile: farmProfile?.farm.profile,
+                    province: farmProfile?.farm.province,
+                    adress: farmProfile?.farm.adress
+                }
+
+                const product = {
+                    name: productRow.name,
+                    description: productRow.description,
+                    price: `${productRow.price}Kz/kg`,
+                    stock: productRow.stock,
+                    unit: productRow.unit == "t" ? "ton" : productRow.unit,
+                    transport: `Caminhão ${productRow.transport}`,
+                    type: productRow.type,
+                    photo: productRow.photo,
+                    created_at: productRow.created_at
+                }
+    
+                return {
+                    message: "Produto carregado com sucesso",
+                    farm: farm,
+                    product: product,
+                    nif: farmProfile?.nif
+                }
+            } catch (error) {
+                if(notFound(error)){
+                    return {info: "Produto não encontrado"}
+                }
+    
+                return {error: "Não foi possível carregar produto"}
             }
         } catch (error) {
-            if(notFound(error)){
-                return {info: "Produto não encontrado"}
-            }
-
-            return {error: "Não foi possível carregar produto"}
+            return {error: "Ocorreu um erro ao verificar infomações"}
         }
+        
     }
 
     async consumerGetAll(userId: string){
@@ -440,8 +596,15 @@ export class ProductsModel {
                 select: {id: true}
             })
 
-            if(!consumerId){
-                return {info: "Informações inválidas"}
+            const userRow = await prisma.users.findFirst({
+                where: {
+                    id: userId,
+                    status: "active"
+                }
+            })
+
+            if(!consumerId || !userRow){
+                return {info: "Informações inválida"}
             }
 
             try {
