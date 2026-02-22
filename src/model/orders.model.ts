@@ -11,12 +11,19 @@ const paymentModel = new Payments()
 export class OrdersModel {
     async create(userId: string, farmId: string, name: string, qtd: number, unit: Stock){
         try {
+            const userRow = await prisma.users.findFirst({
+                where: {
+                    id: userId,
+                    status: "active"
+                }
+            })
+
             const consumerId = await prisma.consumers.findFirst({
                 where: {consumerId: userId},
                 select: {id: true}
             })
             
-            if(!consumerId){
+            if(!consumerId || !userRow){
                 return {error: "Informações inválidas"}
             }
 
@@ -111,7 +118,14 @@ export class OrdersModel {
                 select: {id: true}
             })
 
-            if(!farmRow){
+            const userRow = await prisma.users.findFirst({
+                where: {
+                    id: userId,
+                    status: "active"
+                }
+            })
+
+            if(!farmRow || !userRow){
                 return {error: "Informações inválidas"}
             }
 
@@ -207,7 +221,14 @@ export class OrdersModel {
                 select: {id: true}
             })
 
-            if(!farmRow){
+            const userRow = await prisma.users.findFirst({
+                where: {
+                    id: userId,
+                    status: "active"
+                }
+            })
+
+            if(!farmRow || !userRow){
                 return {error: "Informações inválidas"}
             }
 
@@ -252,7 +273,14 @@ export class OrdersModel {
                 select: {id: true}
             })
 
-            if(!farmRow){
+            const userRow = await prisma.users.findFirst({
+                where: {
+                    id: userId,
+                    status: "active"
+                }
+            })
+
+            if(!farmRow || !userRow){
                 return {error: "Informações inválidas"}
             }
 
@@ -299,7 +327,14 @@ export class OrdersModel {
                 select: {id: true}
             })
 
-            if(!consumerRow){
+            const userRow = await prisma.users.findFirst({
+                where: {
+                    id: userId,
+                    status: "active"
+                }
+            })
+
+            if(!consumerRow || !userRow){
                 return {error: "Informações inválidas"}
             }
 
@@ -372,7 +407,14 @@ export class OrdersModel {
                 select: {id: true}
             })
 
-            if(!consumerRow){
+            const userRow = await prisma.users.findFirst({
+                where: {
+                    id: userId,
+                    status: "active"
+                }
+            })
+
+            if(!consumerRow || !userRow){
                 return {error: "Informações inválidas"}
             }
 
@@ -432,7 +474,14 @@ export class OrdersModel {
                 select: {id: true}
             })
 
-            if(!consumerRow){
+            const userRow = await prisma.users.findFirst({
+                where: {
+                    id: userId,
+                    status: "active"
+                }
+            })
+
+            if(!consumerRow || !userRow){
                 return {error: "Informações inválidas"}
             }
 
@@ -506,7 +555,14 @@ export class OrdersModel {
                 select: {id: true}
             })
 
-            if(!consumerRow){
+            const userRow = await prisma.users.findFirst({
+                where: {
+                    id: userId,
+                    status: "active"
+                }
+            })
+
+            if(!consumerRow || !userRow){
                 return {error: "Informações inválidas"}
             }
 
