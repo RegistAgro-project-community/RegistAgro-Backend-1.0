@@ -12,7 +12,7 @@ export const createSchema = z.object({
     if(data.unit != "t" && data.unit != "kg"){
         ctx.addIssue({
             code: z.ZodIssueCode.custom,
-            message: "A unidade de stock deve ser em t ou kg",
+            message: "Unidade de stock inválida",
             path: ["unit"]
         })
     }
