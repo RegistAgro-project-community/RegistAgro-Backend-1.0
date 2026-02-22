@@ -55,7 +55,7 @@ export class Payments {
                     return {error: "Pagamento não encontrado"}
                 }
 
-                return {message: "Pagamento realizado com sucesso"}
+                return {message: "Pagamento cancelado com sucesso"}
             } catch (error) {
                 return {error: "Ocorreu um erro ao cancelar pagamento"}
             }
