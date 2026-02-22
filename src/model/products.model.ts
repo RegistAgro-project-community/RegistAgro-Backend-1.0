@@ -477,7 +477,7 @@ export class ProductsModel {
                             type: key.type,
                             qtd: key.stock,
                             unit: key.unit == 't' ? 'ton' : key.unit,
-                            transport: `Camião ${key.transport}`
+                            transport: `Caminhão ${key.transport}`
                         }
                     })
                 }))
