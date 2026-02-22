@@ -30,8 +30,8 @@ router.put('/products/update/product/:id', auth, authorization("farm", "update")
 router.get('/products/farms/get/products', auth, authorization("farm", "read"), productsController.getAll)
 router.get('/products/farms/get/product/:id', auth, authorization("farm", "read"), productsController.get)
 router.delete('/products/delete/product/:id', auth, authorization("farm", "delete"), productsController.delete)
-router.get('/products/consumers/get/farm/:id', auth, authorization("farm", "read"), productsController.consumerReadAll)
-router.get('/products/consumers/product/:id', auth, authorization("farm", "read"), productsController.consumerRead)
+router.get('/products/consumers/get/farm/:id', auth, authorization("consumer", "read"), productsController.consumerReadAll)
+router.get('/products/consumers/product/:id', auth, authorization("consumer", "read"), productsController.consumerRead)
 router.get('/products/consumers/get/products', auth, authorization("consumer", "read"), productsController.consumerGetAll)
 
 //Users
