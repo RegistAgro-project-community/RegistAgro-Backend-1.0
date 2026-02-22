@@ -229,7 +229,7 @@ export class ProductsModel {
                             farmId: farmRow.id
                             ,
                             status: "active",
-                            stock: {lte: 5},
+                            stock: {lte: 10},
                             unit: "kg"
                         }
                     })
