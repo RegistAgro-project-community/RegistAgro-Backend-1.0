@@ -2,7 +2,7 @@ export const nifPath = {
     '/auth/signup/nif/{nif}': {
         get: {
             tags: ['Auth'],
-            summary: "Validar código de verificação",
+            summary: "Verifica nif das fazendas",
             parameters: [
                 {
                     name: 'nif',
