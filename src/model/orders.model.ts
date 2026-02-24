@@ -65,7 +65,7 @@ export class OrdersModel {
                     const isAlreadyRequest = await prisma.orders.findFirst({
                         where: {
                             consumerId: consumerId.id,
-                            farmId: farmId,
+                            farmId: farmIdRow?.id!,
                             productId: productRow.id,
                             status: "pendent"
                         }
@@ -79,7 +79,7 @@ export class OrdersModel {
                         const orderRow = await prisma.orders.create({
                             data: {
                                 consumerId: consumerId.id,
-                                farmId: farmId,
+                                farmId: farmIdRow?.id!,
                                 productId: productRow.id,
                                 qtd: qtd,
                                 unit: unit,
@@ -96,7 +96,9 @@ export class OrdersModel {
                                 return {error: paid.error}
                             }
 
-                            return {message: paid.message}
+                            return {
+                                message: "Pedido realizado com sucesso. O seu pagamento ficará retido ate a sua confirmação"
+                            }
                         } catch (error) {
                             return {error: error}
                         }
