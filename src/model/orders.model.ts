@@ -27,10 +27,17 @@ export class OrdersModel {
                 return {error: "Informações inválidas"}
             }
 
+            const farmIdRow = await prisma.farms.findFirst({
+                where: {
+                    farm: {id: farmId}
+                },
+                select: {id: true}
+            })
+
             try {
                 const productRow = await prisma.products.findFirst({
                     where: {
-                        farmId: farmId,
+                        farmId: farmIdRow?.id!,
                         name: name,
                         status: "active"
                     },
