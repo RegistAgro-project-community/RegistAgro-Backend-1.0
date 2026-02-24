@@ -12,7 +12,10 @@ export class ProductsModel {
         try {
             const farmId = await prisma.farms.findFirst({
                 where: {
-                    farmId: userId
+                    farmId: userId,
+                    farm: {
+                        status: "active"
+                    }
                 },
                 select: {id: true}
             })
@@ -116,7 +119,10 @@ export class ProductsModel {
 
             try {
                 const farmId = await prisma.farms.findFirst({
-                    where: {farmId: userId},
+                    where: {
+                        farmId: userId,
+                        farm: {status: "active"}
+                    },
                     select: {id: true}
                 })
 
