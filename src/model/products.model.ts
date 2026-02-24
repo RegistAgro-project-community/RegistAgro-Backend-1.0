@@ -168,7 +168,14 @@ export class ProductsModel {
                 select: {id: true}
             })
 
-            if(!farmId){
+            const userRow = await prisma.users.findFirst({
+                where: {
+                    id: userId,
+                    status: "active"
+                }
+            })
+
+            if(!farmId || !userRow){
                 return {error: "Informações inválidas"}
             }
 
@@ -395,7 +402,7 @@ export class ProductsModel {
                 }
             })
             
-            if(!farmId || userRow){
+            if(!farmId || !userRow){
                 return {error: "Informações inválida"}
             }
 
