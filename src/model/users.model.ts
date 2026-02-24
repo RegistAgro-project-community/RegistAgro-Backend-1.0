@@ -120,6 +120,7 @@ export class UsersModel {
                     status: "active"
                 },
                 select: {
+                    id: true,
                     name: true,
                     email: true,
                     phone: true,
