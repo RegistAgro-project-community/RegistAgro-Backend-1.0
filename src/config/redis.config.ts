@@ -1,12 +1,7 @@
 import { createClient } from 'redis'
 import 'dotenv/config'
 
-var redisClient = createClient()
-
-if(process.env.ENV == "dev"){
-    redisClient.on('error', err => console.error('Redis Client Error'))
-}else {
-    redisClient = createClient({
+    const redisClient = createClient({
         username: process.env.REDIS_USER!,
         password: process.env.REDIS_PASS!,
         socket: {
@@ -27,6 +22,5 @@ if(process.env.ENV == "dev"){
     } catch (error) {
         console.error("Erro no Redis Client")
     }
-}
 
 export { redisClient }
