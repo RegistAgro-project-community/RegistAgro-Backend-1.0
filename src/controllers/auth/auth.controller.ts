@@ -48,15 +48,11 @@ class AuthController {
 
             if(!verifyResult.valid){
                 return res.status(400).json(verifyResult)
-            }else if(verifyResult.data){
-                res.set("authorization", `Bearer ${verifyResult.token}`)
-                
-                return res.status(202).json({message: verifyResult.message, data: verifyResult.data})
             }
             
             res.set("authorization", `Bearer ${verifyResult.token}`)
 
-            return res.status(202).json({message: verifyResult.message})
+            return res.status(202).json({message: verifyResult.message, data: verifyResult.data})
         } catch (error) {
             errors(res)
         }
@@ -113,7 +109,10 @@ class AuthController {
 
                 res.set("authorization", `Bearer ${loginResult.token}`)
 
-                return res.status(200).json({message: loginResult.message})
+                return res.status(200).json({
+                    message: loginResult.message,
+                    data: loginResult.data
+                })
             } catch (error) {
                 errors(res)
             }
