@@ -6,11 +6,15 @@ import productsController from "../controllers/products.controller.js";
 import usersController from "../controllers/users.controller.js";
 import ordersController from "../controllers/orders.controller.js";
 import { healthyRoute } from "../controllers/healthy.controller.js";
+import companyController from "../controllers/company.controller.js";
 
 const router = Router()
 
 //Healthy
 router.get('/', healthyRoute)
+
+//Farms Companies
+router.get('/companies/get', companyController.getCompanies)
 
 //Token
 router.get('/token', auth, authController.verifyToken)
