@@ -37,6 +37,7 @@ import { deleteOrderPath } from "./paths/delete-order.js"
 import { updateOrdersSchema } from "./schemas/update-orders.schema.js"
 import { consumerGetEveryProductPath } from "./paths/consumer-getAll-products.js"
 import { verifyAcessTokenPath } from "./paths/verifyAcessToken.js"
+import { getAllCompaniesPath } from "./paths/get-all-companies.js"
 
 const swaggerOptions = {
   definition: {
@@ -60,6 +61,7 @@ const swaggerOptions = {
     ],
 
     tags: [
+      { name: "Company", descrption: "Ver todas as empresas"},
       { name: "Token", description: "Confirma validade do token de acesso"},
       { name: "Auth", description: "Authentication routes" },
       { name: "Products", description: "Farm Products"},
@@ -68,6 +70,7 @@ const swaggerOptions = {
     ],
 
     paths: {
+      ...getAllCompaniesPath,
       ...verifyAcessTokenPath,
       ...signupPath,
       ...verificationCodePath,
