@@ -18,7 +18,7 @@ export const consumerGetAllProductPath = {
                 }
             ],
             responses: {
-                200: {description: "ÕK"},
+                200: {description: "OK"},
                 400: {description: "Bad Request"},
                 401: {description: "Unauthorized"},
                 403: {description: "Forbidden"},
