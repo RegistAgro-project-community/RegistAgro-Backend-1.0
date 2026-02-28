@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
-import { errors } from "../errors/controllers.errors";
-import { CompanyModel } from "../model/company.model";
+import { errors } from "../errors/controllers.errors.js";
+import { CompanyModel } from "../model/company.model.js";
 
 const companiesModel = new CompanyModel()
 
