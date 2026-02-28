@@ -317,8 +317,7 @@ class AuthModel {
                                     email: userData.email,
                                     phone: userData.phone,
                                     province: userData.province,
-                                    adress: userData.adress,
-                                    photo: userData.profile
+                                    adress: userData.adress
                                 }
                             }
 
@@ -338,15 +337,7 @@ class AuthModel {
                 return {
                     valid: true,
                     message: "Conta verificada com sucesso",
-                    token: token,
-                    data: {
-                        name: userData.name,
-                        email: userData.email,
-                        phone: userData.phone,
-                        province: userData.province,
-                        adress: userData.adress,
-                        photo: userData.profile
-                    }
+                    token: token
                 }
             } catch (error) {
                 return {error: "Não foi possível validar seus dados"}
@@ -467,15 +458,7 @@ class AuthModel {
                     return {
                         valid: true,
                         message: "Login efetuado com sucesso",
-                        token: token,
-                        data: {
-                            name: userData.name,
-                            email: userData.email,
-                            phone: userData.phone,
-                            photo: userData.profile,
-                            province: userData.province,
-                            adress: userData.adress,
-                        }
+                        token: token
                     }
                 }
 
