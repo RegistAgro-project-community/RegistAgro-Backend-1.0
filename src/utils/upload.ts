@@ -10,7 +10,7 @@ export interface uploadResult {
 }
 
 export async function upload(img: UploadedFile, format: string, url: string, to: "user" | "product"): Promise<uploadResult> {
-    const rename = `${to}-${dayjs().format('DDMMYYYY_HHmmss')}.${format}`
+    const rename = `${to}_${dayjs().format('DDMMYYYY_HHmmss')}.${format}`
 
     const pathUrl = process.env.ENV == 'dev' ? path.join(url, rename) : `${url}/${rename}`
     
