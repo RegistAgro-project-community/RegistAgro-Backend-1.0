@@ -61,7 +61,7 @@ const swaggerOptions = {
     ],
 
     tags: [
-      { name: "Company", descrption: "Ver todas as empresas"},
+      { name: "Company", description: "Ver todas as empresas"},
       { name: "Token", description: "Confirma validade do token de acesso"},
       { name: "Auth", description: "Authentication routes" },
       { name: "Products", description: "Farm Products"},
