@@ -26,10 +26,10 @@ class UsersController {
 
                 return res.status(200).json(updateResult)
             } catch (error) {
-                errors(res)
+                return errors(res)
             }
         } catch (error) {
-            zodError(error, res)
+            return zodError(error, res)
         }
     }
 
@@ -48,7 +48,7 @@ class UsersController {
 
             return res.status(200).json(deleteResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 
@@ -67,7 +67,7 @@ class UsersController {
 
             return res.status(400).json(profileResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 
@@ -85,7 +85,7 @@ class UsersController {
 
             return res.status(200).json(dataResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 }

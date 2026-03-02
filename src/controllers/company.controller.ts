@@ -17,7 +17,7 @@ class CompanyController {
 
             return res.status(200).json(companiesResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 }

@@ -26,10 +26,10 @@ class OrdersController {
 
                 return res.status(201).json(createResult)
             } catch (error) {
-                errors(res)
+                return errors(res)
             }
         } catch (error) {
-            zodError(error, res)
+            return zodError(error, res)
         }
     }
 
@@ -47,7 +47,7 @@ class OrdersController {
 
             return res.status(200).json(getAllResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 
@@ -66,7 +66,7 @@ class OrdersController {
 
             return res.status(200).json(acceptResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 
@@ -85,7 +85,7 @@ class OrdersController {
 
             return res.status(200).json(rejectResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 
@@ -103,7 +103,7 @@ class OrdersController {
 
             return res.status(200).json(sentOrdersResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 
@@ -121,7 +121,7 @@ class OrdersController {
 
             return res.status(200).json(cancelResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 
@@ -141,10 +141,10 @@ class OrdersController {
 
                 return res.status(200).json(updateResult)
             } catch (error) {
-                errors(res)
+                return errors(res)
             }
         } catch (error) {
-            zodError(error, res)
+            return zodError(error, res)
         }
     }
 
@@ -161,7 +161,7 @@ class OrdersController {
 
             return res.status(200).json(deleteResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 }

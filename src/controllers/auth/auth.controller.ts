@@ -33,10 +33,10 @@ class AuthController {
                 return res.status(201).json(signupResult)
 
             } catch (error) {
-                errors(res)
+                return errors(res)
             }
         } catch (error) {
-            zodError(error, res)
+            return zodError(error, res)
         }
     }
 
@@ -58,7 +58,7 @@ class AuthController {
 
             return res.status(202).json({message: verifyResult.message})
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 
@@ -74,7 +74,7 @@ class AuthController {
 
             return res.status(200).json(nifResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 
@@ -93,10 +93,10 @@ class AuthController {
 
                 return res.status(201).json(passResult)
             } catch (error) {
-                errors(res)
+                return errors(res)
             }
         } catch (error) {
-            zodError(error, res)
+            return zodError(error, res)
         }
     }
 
@@ -115,10 +115,10 @@ class AuthController {
 
                 return res.status(200).json({message: loginResult.message})
             } catch (error) {
-                errors(res)
+                return errors(res)
             }
         } catch (error) {
-            zodError(error, res)
+            return zodError(error, res)
         }
     }
 
@@ -137,10 +137,10 @@ class AuthController {
 
                 return res.status(200).json({message: signInResult.message})
             } catch (error) {
-                errors(res)
+                return errors(res)
             }
         } catch (error) {
-            zodError(error, res)
+            return zodError(error, res)
         }
     }
 

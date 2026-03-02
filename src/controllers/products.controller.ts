@@ -31,10 +31,10 @@ class ProductController {
 
                 return res.status(201).json(createResult)
             } catch (error) {
-                errors(res)
+                return errors(res)
             }
         } catch (error) {
-            zodError(error, res)
+            return zodError(error, res)
         }
     }
 
@@ -54,7 +54,7 @@ class ProductController {
             return res.status(400).json(productPhotoResult)
 
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 
@@ -77,10 +77,10 @@ class ProductController {
 
                 return res.status(200).json(updateResult)
             } catch (error) {
-                errors(res)
+                return errors(res)
             }
         } catch (error) {
-            zodError(error, res)
+            return zodError(error, res)
         }
     }
 
@@ -99,7 +99,7 @@ class ProductController {
 
             return res.status(200).json(getResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 
@@ -119,7 +119,7 @@ class ProductController {
 
             return res.status(200).json(getResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 
@@ -139,7 +139,7 @@ class ProductController {
 
             return res.status(200).json(deleteResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 
@@ -159,7 +159,7 @@ class ProductController {
 
             return res.status(200).json(getResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 
@@ -183,7 +183,7 @@ class ProductController {
 
             return res.status(200).json(getResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 
@@ -201,7 +201,7 @@ class ProductController {
 
             return res.status(200).json(getResult)
         } catch (error) {
-            errors(res)
+            return errors(res)
         }
     }
 }
