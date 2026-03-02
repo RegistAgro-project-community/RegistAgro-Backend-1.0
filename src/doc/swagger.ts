@@ -38,6 +38,8 @@ import { updateOrdersSchema } from "./schemas/update-orders.schema.js"
 import { consumerGetEveryProductPath } from "./paths/consumer-getAll-products.js"
 import { verifyAcessTokenPath } from "./paths/verifyAcessToken.js"
 import { getAllCompaniesPath } from "./paths/get-all-companies.js"
+import { confirmPaymentPath } from "./paths/confirmPayment.path.js"
+import { confirmPaymentSchema } from "./schemas/confirmPayment.schema.js"
 
 const swaggerOptions = {
   definition: {
@@ -92,12 +94,13 @@ const swaggerOptions = {
       ...userProfilePhotoPath,
       ...userProfilePath,
       ...createOrderPath,
+      ...confirmPaymentPath,
       ...getAllOrdersFarmsPath,
       ...acceptOrdersPath,
       ...sentOrdersPath,
       ...cancelOrdersPath,
       ...updateOrdersPath,
-      ...deleteOrderPath
+      ...deleteOrderPath,
     },
 
     components: {
@@ -119,6 +122,7 @@ const swaggerOptions = {
         ...updateUserSchema,
         ...userProfilePhotoSchema,
         ...createOrderSchema,
+        ...confirmPaymentSchema,
         ...updateOrdersSchema
       }
     }
