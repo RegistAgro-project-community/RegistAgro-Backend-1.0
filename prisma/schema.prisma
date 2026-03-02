@@ -1,7 +1,7 @@
 generator client {
   provider = "prisma-client"
   output   = "../generated/prisma"
-  runtime = "nodejs"
+  runtime  = "nodejs"
 }
 
 datasource db {
@@ -131,6 +131,7 @@ enum orders_status {
   rejected
   ongoing
   inactive
+  deleted
 }
 
 model Orders {
@@ -154,20 +155,24 @@ model Orders {
 }
 
 enum Payment_status {
+  pendent
   retained
   released
   canceled
 }
 
 model Payments {
-  id             String         @id @default(uuid())
-  order          Orders         @relation(fields: [orderId], references: [id])
-  orderId        String
-  productValue   Float
-  transportValue Float
-  value          Float
-  status         Payment_status @default(retained)
-  created_at     DateTime       @default(now())
+  id              String         @id @default(uuid())
+  order           Orders         @relation(fields: [orderId], references: [id])
+  orderId         String
+  reference       String         @unique
+  productValue    Float
+  transportValue  Float
+  registagroValue Float
+  farmValue       Float
+  value           Float
+  status          Payment_status @default(pendent)
+  created_at      DateTime       @default(now())
 
   @@map("payments")
 }
