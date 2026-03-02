@@ -2,7 +2,7 @@ import type { Stock } from "../../generated/prisma/enums.js";
 import { prisma } from "../../lib/prisma.js";
 import { notFound } from "../errors/notFound.js";
 import { paymentSplit } from "../utils/paymentSplit.js";
-import { Payments } from "./payment.model.js";
+import { Payments } from "../services/payment.service.js";
 import { orderPrice } from "../utils/orderPrice.js";
 import { verifyStock } from "../utils/verifyStock.js";
 
@@ -67,12 +67,33 @@ export class OrdersModel {
                             consumerId: consumerId.id,
                             farmId: farmIdRow?.id!,
                             productId: productRow.id,
-                            status: "pendent"
+                            OR: [
+                                {status: "pendent"},
+                                {status: "ongoing"},
+                            ]
                         }
                     })
 
                     if(isAlreadyRequest){
-                        return {error: "Este pedido já foi feito"}
+                        if(isAlreadyRequest.status == "ongoing"){
+                            return {error: "Este pedido já está em andamento"}
+                        }
+
+                        try {
+                            const farmName = await prisma.farms.findFirst({
+                                where: {id: isAlreadyRequest.farmId},
+                                select: {
+                                    farm: {
+                                        select: {name: true}
+                                    }
+                                }
+                            })
+
+                            return {error: `Este pedido já foi feito. Aguarde a confirmação de ${farmName?.farm.name}`}
+                        } catch (error) {
+                            return {error: "Ocorreu um erro ao verificar informações"}
+                        }
+
                     }
 
                     try {
@@ -83,22 +104,21 @@ export class OrdersModel {
                                 productId: productRow.id,
                                 qtd: qtd,
                                 unit: unit,
-                                value: price
+                                value: price,
+                                status: "inactive"
                             }
                         })
 
                         const { transportValue, registagroValue, total } = paymentSplit(price)
 
                         try {
-                            const paid = await paymentModel.create(orderRow.id, transportValue, price, total)
+                            const { error, reference } = await paymentModel.create(orderRow.id, transportValue, productRow.price, registagroValue, price, total)
 
-                            if(paid.error){
-                                return {error: paid.error}
+                            if(error){
+                                return {error: error}
                             }
 
-                            return {
-                                message: "Pedido realizado com sucesso. O seu pagamento ficará retido ate a sua confirmação"
-                            }
+                            return {reference: reference}
                         } catch (error) {
                             return {error: error}
                         }
@@ -142,7 +162,10 @@ export class OrdersModel {
                 const ordersRow = await prisma.orders.findMany({
                     where: {
                         farmId: farmRow.id,
-                        status: {not: "inactive"}
+                        AND: [
+                            {status: {not: "inactive"}},
+                            {status: {not: "deleted"}}
+                        ]
                     }
                 })
 
@@ -368,13 +391,6 @@ export class OrdersModel {
 
                         return {
                             id: column.id,
-                            consumer: await prisma.users.findFirst({
-                                where: {id: userId},
-                                select: {
-                                    name: true,
-                                    profile: true
-                                }
-                            }),
                             farm: await prisma.users.findFirst({
                                 where: {id: farmRow?.farmId!},
                                 select: {
@@ -393,7 +409,7 @@ export class OrdersModel {
                             }),
                             qtd: column.qtd,
                             unit: column.unit,
-                            value: `${column.value}Kz`,
+                            total: `${column.value}Kz`,
                             status: column.status,
                             created_at: column.created_at
                         }
@@ -593,9 +609,9 @@ export class OrdersModel {
                         where: {
                             id: orderId,
                             consumerId: consumerRow.id,
-                            status: {not: "inactive"}
+                            status: {not: "deleted"}
                         },
-                        data: {status: "inactive"}
+                        data: {status: "deleted"}
                     })
 
                     return {message: "Pedido apagado com sucesso"}
