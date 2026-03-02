@@ -7,6 +7,7 @@ import usersController from "../controllers/users.controller.js";
 import ordersController from "../controllers/orders.controller.js";
 import { healthyRoute } from "../controllers/healthy.controller.js";
 import companyController from "../controllers/company.controller.js";
+import paymentController from "../controllers/payment.controller.js";
 
 const router = Router()
 
@@ -46,6 +47,7 @@ router.get('/users/profile', auth, usersController.profile)
 
 //Orders
 router.post('/orders/create/farm/:id', auth, authorization("consumer", "create"), ordersController.create)
+router.patch('/orders/payment/confirm', auth, authorization("consumer", "update"), paymentController.confirm)
 router.get('/orders/farms/order/get', auth, authorization("farm", "read"), ordersController.viewsAll)
 router.patch('/orders/accept/order/:id', auth, authorization("farm", "update"), ordersController.accept)
 router.patch('/orders/reject/order/:id', auth, authorization("farm", "update"), ordersController.reject)
