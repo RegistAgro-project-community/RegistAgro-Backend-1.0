@@ -477,7 +477,12 @@ class AuthModel {
     async farmSignIn(nif: string, pass: string){
         try {
             const userData = await prisma.users.findFirst({
-                where: {farms: {some: {nif: nif}}}
+                where: {
+                    farms: {
+                        some: {nif: nif}
+                    },
+                    status: "active"
+                }
             })
 
             if(userData){
