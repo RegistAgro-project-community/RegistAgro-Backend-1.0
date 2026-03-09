@@ -40,6 +40,7 @@ import { verifyAcessTokenPath } from "./paths/verifyAcessToken.js"
 import { getAllCompaniesPath } from "./paths/get-all-companies.js"
 import { confirmPaymentPath } from "./paths/confirmPayment.path.js"
 import { confirmPaymentSchema } from "./schemas/confirmPayment.schema.js"
+import { rejectOrdersPath } from "./paths/reject-orders.js"
 
 const swaggerOptions = {
   definition: {
@@ -101,6 +102,7 @@ const swaggerOptions = {
       ...cancelOrdersPath,
       ...updateOrdersPath,
       ...deleteOrderPath,
+      ...rejectOrdersPath
     },
 
     components: {
