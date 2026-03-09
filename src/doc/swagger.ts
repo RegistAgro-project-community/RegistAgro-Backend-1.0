@@ -98,11 +98,11 @@ const swaggerOptions = {
       ...confirmPaymentPath,
       ...getAllOrdersFarmsPath,
       ...acceptOrdersPath,
+      ...rejectOrdersPath,
       ...sentOrdersPath,
       ...cancelOrdersPath,
       ...updateOrdersPath,
       ...deleteOrderPath,
-      ...rejectOrdersPath
     },
 
     components: {
