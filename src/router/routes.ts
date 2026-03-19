@@ -8,6 +8,7 @@ import ordersController from "../controllers/orders.controller.js";
 import { healthyRoute } from "../controllers/healthy.controller.js";
 import companyController from "../controllers/company.controller.js";
 import paymentController from "../controllers/payment.controller.js";
+import transportController from "../controllers/transport.controller.js";
 
 const router = Router()
 
@@ -55,5 +56,10 @@ router.get('/orders/consumers/order/sent', auth, authorization("consumer", "crea
 router.patch('/orders/consumers/cancel/order/:id', auth, authorization("consumer", "update"), ordersController.cancelOrder)
 router.put('/orders/consumers/update/order/:id', auth, authorization("consumer", "update"), ordersController.updateOrder)
 router.delete('/orders/consumers/delete/order/:id', auth, authorization("consumer", "delete"), ordersController.deleteOrder)
+
+//Transports
+router.post('/transports/vehicle/create', auth, authorization("carrier", "create"), transportController.createTransport)
+router.get('/transports/farms/get/vehicle/:transport', auth, authorization("farm", "read"), transportController.showCarriers)
+router.post('/transports/request', auth, authorization("farm", "create"), transportController.hireCarrier)
 
 export { router }
