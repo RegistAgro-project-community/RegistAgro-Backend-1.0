@@ -9,7 +9,7 @@ interface ImageUploadResult {
     validFormat?: string[]
 }
 
-export async function image(img: UploadedFile | undefined, url: string, to: "user" | "product"): Promise<ImageUploadResult> {
+export async function image(img: UploadedFile | undefined, url: string, to: "user" | "product" | "vehicle"): Promise<ImageUploadResult> {
     const formats = ["jpg", "png", "jpeg", "webp"]
     
     if(!img){
