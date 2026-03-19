@@ -85,7 +85,6 @@ model Carriers {
   carrierId          String
   balance            Float                @default(0)
   vehicles           Vehicles[]
-  requests_transport Transport_requests[]
   routes             Routes[]
 
   @@map("carriers")
@@ -185,14 +184,17 @@ enum VehiclesType {
 }
 
 model Vehicles {
-  id        String       @id @default(uuid())
-  carrier   Carriers     @relation(fields: [carrierId], references: [id])
-  carrierId String
-  brand     String
-  plate     String
-  type      VehiclesType
-  capacity  Int
-  unit      Stock
+  id                String               @id @default(uuid())
+  carrier           Carriers             @relation(fields: [carrierId], references: [id])
+  carrierId         String
+  brand             String
+  plate             String               @unique
+  type              VehiclesType
+  capacity          Int
+  unit              Stock
+  photo             String
+  status            Deleted              @default(active)
+  transportRequests Transport_requests[]
 
   @@map("vehicles")
 }
@@ -201,19 +203,19 @@ enum Requests {
   pendente
   aceite
   em_transporte
-  cancelado
   entregue
+  rejeitado
 }
 
 model Transport_requests {
-  id           String   @id @default(uuid())
-  order        Orders   @relation(fields: [orderId], references: [id])
+  id           String    @id @default(uuid())
+  order        Orders    @relation(fields: [orderId], references: [id])
   orderId      String
-  carrier      Carriers @relation(fields: [carrierId], references: [id])
-  carrierId    String
-  status       Requests @default(pendente)
-  start_at     DateTime
-  delivered_at DateTime
+  vehicle      Vehicles  @relation(fields: [vehicleId], references: [id])
+  vehicleId    String
+  status       Requests  @default(pendente)
+  start_at     DateTime?
+  delivered_at DateTime?
 
   @@map("transport_requests")
 }
