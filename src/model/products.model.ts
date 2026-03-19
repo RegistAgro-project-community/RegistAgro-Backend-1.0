@@ -5,7 +5,6 @@ import { notFound } from "../errors/notFound.js";
 import type { UploadedFile } from 'express-fileupload';
 import { image } from "../utils/image.js";
 import 'dotenv/config.js'
-import { map } from "zod";
 
 export class ProductsModel {
     async create(img: UploadedFile | undefined,userId: string, name: string, description: string, price: number, stock: number, unit: Stock, type: ProductsType, transport: VehiclesType){
