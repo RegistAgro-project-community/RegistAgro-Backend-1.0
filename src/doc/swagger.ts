@@ -41,6 +41,11 @@ import { getAllCompaniesPath } from "./paths/get-all-companies.js"
 import { confirmPaymentPath } from "./paths/confirmPayment.path.js"
 import { confirmPaymentSchema } from "./schemas/confirmPayment.schema.js"
 import { rejectOrdersPath } from "./paths/reject-orders.js"
+import { createTransportPath } from "./paths/createTransport.path.js"
+import { createTransportSchema } from "./schemas/createTransport.schema.js"
+import { findVehiclesPath } from "./paths/findVehicles.path.js"
+import { requestTransportPath } from "./paths/requestTransport.path.js"
+import { requestTransportSchema } from "./schemas/requestTransport.schema.js"
 
 const swaggerOptions = {
   definition: {
@@ -69,7 +74,8 @@ const swaggerOptions = {
       { name: "Auth", description: "Authentication routes" },
       { name: "Products", description: "Farm Products"},
       { name: "Users", description: "Users actions routes"},
-      {name: "Orders", description: "Orders endpoints"}
+      {name: "Orders", description: "Orders endpoints"},
+      {name: "Transports", description: "Carriers and requests transport endpoints"}
     ],
 
     paths: {
@@ -103,6 +109,9 @@ const swaggerOptions = {
       ...cancelOrdersPath,
       ...updateOrdersPath,
       ...deleteOrderPath,
+      ...createTransportPath,
+      ...findVehiclesPath,
+      ...requestTransportPath
     },
 
     components: {
@@ -125,7 +134,9 @@ const swaggerOptions = {
         ...userProfilePhotoSchema,
         ...createOrderSchema,
         ...confirmPaymentSchema,
-        ...updateOrdersSchema
+        ...updateOrdersSchema,
+        ...createTransportSchema,
+        ...requestTransportSchema
       }
     }
   },
