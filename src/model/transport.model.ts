@@ -40,6 +40,7 @@ export class TransportModel {
                                 phone: true
                             }
                         },
+                        busy: true,
                         vehicles: {
                             where: {
                                 type: transport,
@@ -266,14 +267,20 @@ export class TransportModel {
                                     province: true,
                                     adress: true
                                 }
-                            }
+                            },
+                            busy: true
                         }
                     })
+
+                    if(carrierRow?.busy){
+                        return {error: "Não é possível contratar este veículo. A transportadora encontra-se em outra viagem"}
+                    }
 
                     const request = await prisma.transport_requests.create({
                         data: {
                             orderId: orderId,
-                            vehicleId: vehicleId
+                            vehicleId: vehicleId,
+                            carrierId: vehicleRow.carrierId
                         }
                     })
 
@@ -286,6 +293,7 @@ export class TransportModel {
                             phone: carrierRow?.carrier.phone,
                             province: carrierRow?.carrier.province,
                             adress: carrierRow?.carrier.adress,
+                            busy: carrierRow?.busy,
                             vehicle_id: vehicleRow.id,
                             brand: vehicleRow.brand,
                             plate: vehicleRow.plate,
@@ -300,6 +308,185 @@ export class TransportModel {
             }
         } catch (error) {
             return {error: "Ocorreu um erro ao verificar informações"} 
+        }
+    }
+
+    async myVehicles(userId: string){
+        try {
+            const carrierRow = await prisma.carriers.findFirst({
+                where: {
+                    carrier: {
+                        id: userId,
+                        status: "active"
+                    }
+                }
+            })
+
+            if(!carrierRow){
+                return {error: "Informações inválidas"}
+            }
+
+            try {
+                const vehicleRow = await prisma.vehicles.findMany({
+                    where: {
+                        carrierId: carrierRow.id,
+                        status: "active"
+                    },
+                    select: {
+                        id: true,
+                        brand: true,
+                        plate: true,
+                        type: true,
+                        capacity: true,
+                        unit: true,
+                        photo: true
+                    }
+                })
+
+                if(vehicleRow.length == 0){
+                    return {info: "Você ainda não possui nenhum veículo"}
+                }
+
+                return {
+                    message: "Veículos carregados com sucesso",
+                    vehicles: vehicleRow.map(key =>{
+                        return {
+                            id: key.id,
+                            brand: key.brand,
+                            plate: key.plate,
+                            type: key.type,
+                            capacity: `${key.capacity}${key.unit == "t" ? "ton" : key.unit}`,
+                            photo: key.photo
+                        }
+                    })
+                }
+            } catch (error) {
+                return {error: "Não foi possível carregar seus veículos"}
+            }
+        } catch (error) {
+            return {error: "Ocorreu um erro ao verificar informações"}
+        }
+    }
+
+    async getRequests(userId: string){
+        try {
+            const carrierRow = await prisma.carriers.findFirst({
+                where: {
+                    carrier: {
+                        id: userId,
+                        status: "active"
+                    }
+                }
+            })
+
+            if(!carrierRow){
+                return {error: "Informações inválidas"}
+            }
+
+            try {
+                const requestsRow = await prisma.transport_requests.findMany({
+                    where: {carrierId: carrierRow.id}
+                })
+
+                if(requestsRow.length == 0){
+                    return {info: "Você não possui nehuma solicitação de transporte"}
+                }
+
+                try {
+                    const requests = await Promise.all(
+                        requestsRow.map(async column =>{
+                            const orderInfo = await prisma.orders.findFirst({
+                                where: {
+                                    id: column.orderId,
+                                    status: "confirmed"
+                                },
+                                select: {
+                                    id: true,
+                                    farm: {
+                                        select: {
+                                            farm: {
+                                                select: {
+                                                    id: true,
+                                                    name: true,
+                                                    phone: true,
+                                                    profile: true,
+                                                    province: true,
+                                                    adress: true
+                                                }
+                                            }
+                                        }
+                                    },
+                                    product: {
+                                        select: {
+                                            id: true,
+                                            name: true,
+                                            price: true,
+                                            photo: true,
+                                        }
+                                    },
+                                    qtd: true,
+                                    unit: true,
+                                    value: true
+                                }
+                            })
+
+                            const vehicleInfo = await prisma.vehicles.findFirst({
+                                where: {
+                                    id: column.vehicleId,
+                                    status: "active"
+                                },
+                                select: {
+                                    id: true,
+                                    brand: true,
+                                    plate: true,
+                                    capacity: true,
+                                    unit: true,
+                                    type: true,
+                                    photo: true
+                                }
+                            })
+
+                            return {
+                                farm: {
+                                    id: orderInfo?.farm.farm.id,
+                                    name: orderInfo?.farm.farm.name,
+                                    phone: orderInfo?.farm.farm.phone,
+                                    province: orderInfo?.farm.farm.province,
+                                    adress: orderInfo?.farm.farm.adress,
+                                    profile: orderInfo?.farm.farm.profile
+                                },
+                                order: {
+                                    product_id: orderInfo?.product.id,
+                                    productName: orderInfo?.product.name,
+                                    price: `${orderInfo?.product.price}Kz`,
+                                    photo: orderInfo?.product.photo,
+                                    qtd: `${orderInfo?.qtd}${orderInfo?.unit == "t" ? "ton" : "kg"}`,
+                                    value: `${orderInfo?.value}Kz`
+                                },
+                                vehicle: {
+                                    id: vehicleInfo?.id,
+                                    brand: vehicleInfo?.brand,
+                                    plate: vehicleInfo?.plate,
+                                    type: vehicleInfo?.type,
+                                    capacity: `${vehicleInfo?.capacity}${vehicleInfo?.unit == "t" ? "ton" : vehicleInfo?.unit}`,
+                                    photo: vehicleInfo?.photo
+                                }
+                            }
+                        })
+                    )
+
+                    return {
+                        message: "Solicitações carregadas com sucesso",
+                        requests: requests
+                    }
+                } catch (error) {
+                    return {error: "Não foi possível buscar os dados das suas solicitações"}
+                }
+            } catch (error) {
+                return {error: "Não foi possível carregar as solicitações de transporte"}
+            }
+        } catch (error) {
+            return {error: "Ocorreu um erro ao verificar informações"}
         }
     }
 }
