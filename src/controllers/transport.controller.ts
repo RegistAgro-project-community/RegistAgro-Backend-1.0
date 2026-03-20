@@ -93,6 +93,42 @@ class TransportController {
             return zodError(error, res)
         }
     }
+
+    async myVehicles(req: Request, res: Response){
+        const userId = req.user!.id
+
+        try {
+            const vehiclesResult = await transportModel.myVehicles(userId)
+
+            if(vehiclesResult.error){
+                return res.status(400).json(vehiclesResult)
+            }else if(vehiclesResult.info){
+                return res.status(404).json(vehiclesResult)
+            }
+
+            return res.status(200).json(vehiclesResult)
+        } catch (error) {
+            return errors(res)
+        }
+    }
+
+    async getRequest(req: Request, res: Response){
+        const userId = req.user!.id
+
+        try {
+            const requestsResult = await transportModel.getRequests(userId)
+
+            if(requestsResult.error){
+                return res.status(400).json(requestsResult)
+            }else if(requestsResult.info){
+                return res.status(404).json(requestsResult)
+            }
+
+            return res.status(200).json(requestsResult)
+        } catch (error) {
+            return errors(res)
+        }
+    }
 }
 
 export default new TransportController()
