@@ -61,5 +61,6 @@ router.delete('/orders/consumers/delete/order/:id', auth, authorization("consume
 router.post('/transports/vehicle/create', auth, authorization("carrier", "create"), transportController.createTransport)
 router.get('/transports/farms/get/vehicle/:transport', auth, authorization("farm", "read"), transportController.showCarriers)
 router.post('/transports/request', auth, authorization("farm", "create"), transportController.hireCarrier)
-
+router.get('/transports/carriers/vehicles', auth, authorization("carrier", "read"), transportController.myVehicles)
+router.get('/transports/carrier/request/get', auth, authorization("carrier", "read"), transportController.getRequest)
 export { router }
