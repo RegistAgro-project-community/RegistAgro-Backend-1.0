@@ -80,12 +80,14 @@ model Consumers {
 }
 
 model Carriers {
-  id                 String               @id @default(uuid())
-  carrier            Users                @relation(fields: [carrierId], references: [id])
-  carrierId          String
-  balance            Float                @default(0)
-  vehicles           Vehicles[]
-  routes             Routes[]
+  id                String               @id @default(uuid())
+  carrier           Users                @relation(fields: [carrierId], references: [id])
+  carrierId         String
+  balance           Float                @default(0)
+  busy              Boolean              @default(false)
+  vehicles          Vehicles[]
+  routes            Routes[]
+  transportRequests Transport_requests[]
 
   @@map("carriers")
 }
@@ -204,6 +206,7 @@ enum Requests {
   aceite
   em_transporte
   entregue
+  cancelado
   rejeitado
 }
 
@@ -211,6 +214,8 @@ model Transport_requests {
   id           String    @id @default(uuid())
   order        Orders    @relation(fields: [orderId], references: [id])
   orderId      String
+  carrier      Carriers  @relation(fields: [carrierId], references: [id])
+  carrierId    String
   vehicle      Vehicles  @relation(fields: [vehicleId], references: [id])
   vehicleId    String
   status       Requests  @default(pendente)
