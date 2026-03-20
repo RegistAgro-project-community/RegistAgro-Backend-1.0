@@ -220,6 +220,7 @@ export class OrdersModel {
                                     name: true,
                                     photo: true, 
                                     type: true,
+                                    transport: true,
                                     price: true
                                 }
                             }),
