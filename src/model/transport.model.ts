@@ -199,10 +199,7 @@ export class TransportModel {
             }
 
             const requestRow = await prisma.transport_requests.findFirst({
-                where: {
-                    orderId: orderId,
-                    vehicleId: vehicleId,
-                }
+                where: {orderId: orderId}
             })
 
             if(requestRow){
