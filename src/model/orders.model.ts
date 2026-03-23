@@ -197,6 +197,11 @@ export class OrdersModel {
                             where: {id: column.consumerId},
                             select: {consumerId: true}
                         })
+
+                        const transportRequest = await prisma.transport_requests.findFirst({
+                            where: {orderId: column.id},
+                            select: {status: true}
+                        })
                         
                         return {
                             id: column.id,
@@ -228,7 +233,8 @@ export class OrdersModel {
                             unit: column.unit,
                             value: column.value,
                             status: column.status,
-                            created_at: column.created_at
+                            created_at: column.created_at,
+                            transport_status: `${column.status != "pendent" ? transportRequest?.status : null}`
                         }
                     })
                 )
