@@ -77,6 +77,10 @@ export class TransportModel {
                    })
                 }))
 
+                if(vehicles.length == 0){
+                    return {info: "Nenhum transporte encontrado"}
+                }
+
                 return {vehicles: vehicles}
             } catch (error) {
                 return {error: "Ocorreu um erro ao carregar transportes"}
