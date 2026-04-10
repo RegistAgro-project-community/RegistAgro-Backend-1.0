@@ -390,7 +390,7 @@ export class TransportModel {
                 })
 
                 if(requestsRow.length == 0){
-                    return {info: "Você não possui nehuma solicitação de transporte"}
+                    return {info: "Você não possui nenhuma solicitação de transporte"}
                 }
 
                 try {
