@@ -1,15 +1,16 @@
-import type { Stock } from "../../generated/prisma/enums.js";
+import type { Province, Stock } from "../../generated/prisma/enums.js";
 import { prisma } from "../../lib/prisma.js";
 import { notFound } from "../errors/notFound.js";
 import { paymentSplit } from "../utils/paymentSplit.js";
 import { Payments } from "../services/payment.service.js";
 import { orderPrice } from "../utils/orderPrice.js";
 import { verifyStock } from "../utils/verifyStock.js";
+import { getAltLong } from "../utils/location.js";
 
 const paymentModel = new Payments()
 
 export class OrdersModel {
-    async create(userId: string, farmId: string, name: string, qtd: number, unit: Stock){
+    async create(userId: string, farmId: string, name: string, qtd: number, unit: Stock, delivery: string | undefined){
         try {
             const userRow = await prisma.users.findFirst({
                 where: {
@@ -33,6 +34,10 @@ export class OrdersModel {
                 },
                 select: {id: true}
             })
+
+            if(!farmIdRow){
+                return {error: "Essa fazenda não existe"}
+            }
 
             try {
                 const productRow = await prisma.products.findFirst({
@@ -95,6 +100,25 @@ export class OrdersModel {
                         }
 
                     }
+                    
+                    //Pegar o endereço do usuário
+                    const consumerAdress = await prisma.users.findFirst({
+                        where: {id: userId},
+                        select: {adress: true}
+                    })
+
+                    //Validar endereço de entrega caso usuário adicionou
+                    const isValidAdress = delivery ? await getAltLong(delivery!) : null
+
+                    if(isValidAdress && isValidAdress.error){
+                        return {error: isValidAdress.error}
+                    }
+
+                    const state = isValidAdress ? isValidAdress.state?.split(" ")[0] as Province ?? "" : ""
+                    
+                    if(state != "Bengo" && state != "Luanda" && delivery){
+                        return {error: "Endereço de entrega inválido"}
+                    }
 
                     try {
                         const orderRow = await prisma.orders.create({
@@ -105,6 +129,7 @@ export class OrdersModel {
                                 qtd: qtd,
                                 unit: unit,
                                 value: price,
+                                delivery: delivery ? isValidAdress!.adress! : consumerAdress!.adress,
                                 status: "inactive"
                             }
                         })
