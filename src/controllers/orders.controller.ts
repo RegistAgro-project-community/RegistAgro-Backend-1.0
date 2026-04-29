@@ -15,8 +15,10 @@ class OrdersController {
         try {
             const { name, qtd, unit } = createOrderSchema.parse(req.body)
 
+            const delivery = req.body["delivery"] as string
+
             try {
-                const createResult = await ordersModel.create(userId!, farmId as string, name, qtd, unit as Stock)
+                const createResult = await ordersModel.create(userId!, farmId as string, name, qtd, unit as Stock, delivery)
 
                 if(createResult.info){
                     return res.status(404).json(createResult)
