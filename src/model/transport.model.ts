@@ -427,7 +427,8 @@ export class TransportModel {
                                     },
                                     qtd: true,
                                     unit: true,
-                                    value: true
+                                    value: true,
+                                    delivery: true
                                 }
                             })
 
@@ -462,7 +463,8 @@ export class TransportModel {
                                     price: `${orderInfo?.product.price}Kz`,
                                     photo: orderInfo?.product.photo,
                                     qtd: `${orderInfo?.qtd}${orderInfo?.unit == "t" ? "ton" : "kg"}`,
-                                    value: `${orderInfo?.value}Kz`
+                                    value: `${orderInfo?.value}Kz`,
+                                    delivery_adress: orderInfo?.delivery
                                 },
                                 vehicle: {
                                     id: vehicleInfo?.id,
