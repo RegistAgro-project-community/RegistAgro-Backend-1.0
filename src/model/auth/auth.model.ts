@@ -3,6 +3,7 @@ import { prisma } from "../../../lib/prisma.js"
 import { redisClient } from "../../config/redis.config.js"
 import { sendEmailWithOTP, verifyOTPCode } from "../../services/email.service.js"
 import { DataValidate } from "../../utils/data.validate.js"
+import { getAltLong } from "../../utils/location.js"
 import { PasswordHash } from "../../utils/password.hash.js"
 import jwt from 'jsonwebtoken'
 
@@ -48,6 +49,18 @@ class AuthModel {
                 valid: false,
                 message: "Email inválido"
             }
+        }
+
+        const isValidAdress = await getAltLong(adress)
+        
+        if(isValidAdress.error){
+            return {error: isValidAdress.error}
+        }
+
+        const state = isValidAdress.state?.split(" ")[0] ?? ""
+
+        if(province != state){
+            return {error: "O seu endereço não pertence a sua província"}
         }
 
         try {
