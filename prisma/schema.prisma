@@ -131,6 +131,7 @@ enum orders_status {
   canceled
   rejected
   ongoing
+  delivered
   inactive
   deleted
 }
@@ -147,6 +148,7 @@ model Orders {
   unit               Stock
   value              Float
   status             orders_status        @default(pendent)
+  delivery           String
   created_at         DateTime             @default(now())
   payments           Payments[]
   requests_transport Transport_requests[]
@@ -245,13 +247,13 @@ model Routes {
 }
 
 model Location {
-  id       String   @id @default(uuid())
-  order    Orders   @relation(fields: [orderId], references: [id])
-  orderId  String
-  latitude String
-  altitude String
-  time     DateTime @default(now())
-  active   Boolean  @default(true)
+  id        String   @id @default(uuid())
+  order     Orders   @relation(fields: [orderId], references: [id])
+  orderId   String
+  longitude String
+  altitude  String
+  time      DateTime @default(now())
+  active    Boolean  @default(true)
 }
 
 model VerificationCode {
