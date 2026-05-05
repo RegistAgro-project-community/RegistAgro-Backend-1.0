@@ -1,5 +1,6 @@
 import fetch from "node-fetch";
 import 'dotenv/config.js'
+import type { Province } from "../../generated/prisma/enums";
 
 interface location {
     latitude?: string
@@ -63,9 +64,15 @@ export async function getAdress(latitude: string, longitude: string): Promise<Ge
 
     try {
         const res = await fetch(url)
-        const data = await res.json() as any
+        const data = await res.json() as GeoapifyResponse
 
-        if(!data.features || data.features.length === 0){
+        if(!data.features || !data.features[0]?.properties.state){
+            return {sucess: false}
+        }
+
+        const province = data.features[0]?.properties.state.split(" ")[0] as Province
+
+        if(province != "Bengo" && province != "Luanda"){
             return {sucess: false}
         }
 
