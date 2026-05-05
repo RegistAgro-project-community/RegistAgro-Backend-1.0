@@ -65,5 +65,6 @@ router.get('/transports/farms/get/vehicle/:transport', auth, validAccount(), aut
 router.post('/transports/request', auth, validAccount(), authorization("farm", "create"), transportController.hireCarrier)
 router.get('/transports/carriers/vehicles', auth, validAccount(), authorization("carrier", "read"), permission("carrier"), transportController.myVehicles)
 router.get('/transports/carrier/request/get', auth, validAccount(), authorization("carrier", "read"), permission("carrier"), transportController.getRequest)
+router.patch('/transports/carrier/request/accept', auth, validAccount(), authorization("carrier", "update"), permission("carrier"), transportController.acceptRequest)
 
 export { router }
