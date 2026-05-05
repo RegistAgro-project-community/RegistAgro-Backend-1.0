@@ -6,6 +6,7 @@ import { errors } from "../errors/controllers.errors.js";
 import type { UploadedFile } from "express-fileupload";
 import { zodError } from "../errors/zod.erros.js";
 import { createVehiclesSchema, hireCarrierSchema } from "../utils/schemas/vehicles.schema.js";
+import { createCoordenateSchema } from "../utils/schemas/coordinates.zod.js";
 
 const transportModel = new TransportModel()
 
@@ -127,6 +128,30 @@ class TransportController {
             return res.status(200).json(requestsResult)
         } catch (error) {
             return errors(res)
+        }
+    }
+
+    async acceptRequest(req: Request, res: Response){
+        const userId = req.user!.id
+
+        try {
+            const { requestId, latitude, longitude } = createCoordenateSchema.parse(req.body)
+
+            try {
+                const acceptResult = await transportModel.acceptRequest(userId, requestId, latitude, longitude)
+    
+                if(acceptResult.info){
+                    return res.status(404).json(acceptResult)
+                }else if(acceptResult.error){
+                    return res.status(400).json(acceptResult)
+                }
+    
+                return res.status(200).json(acceptResult)
+            } catch (error) {
+                return errors(res)
+            }
+        } catch (error) {
+            return zodError(error, res)
         }
     }
 }
