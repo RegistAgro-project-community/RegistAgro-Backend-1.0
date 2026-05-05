@@ -134,6 +134,7 @@ enum orders_status {
   delivered
   inactive
   deleted
+  incollection
 }
 
 model Orders {
@@ -210,6 +211,7 @@ enum Requests {
   entregue
   cancelado
   rejeitado
+  aguardando_coleta
 }
 
 model Transport_requests {
@@ -251,7 +253,7 @@ model Location {
   order     Orders   @relation(fields: [orderId], references: [id])
   orderId   String
   longitude String
-  altitude  String
+  latitude  String
   time      DateTime @default(now())
   active    Boolean  @default(true)
 }
