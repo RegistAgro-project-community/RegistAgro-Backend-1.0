@@ -74,7 +74,6 @@ const swaggerOptions = {
 
     tags: [
       { name: "Company", description: "Ver todas as empresas"},
-      { name: "Token", description: "Confirma validade do token de acesso"},
       { name: "Auth", description: "Authentication routes" },
       { name: "Products", description: "Farm Products"},
       { name: "Users", description: "Users actions routes"},
@@ -84,7 +83,6 @@ const swaggerOptions = {
 
     paths: {
       ...getAllCompaniesPath,
-      ...verifyAcessTokenPath,
       ...signupPath,
       ...verificationCodePath,
       ...nifPath,
