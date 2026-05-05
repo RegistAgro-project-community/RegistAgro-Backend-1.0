@@ -5,6 +5,7 @@ import 'dotenv/config.js'
 import path from "node:path";
 import { image } from "../utils/image.js";
 import { verifyStock } from "../utils/verifyStock.js";
+import { getAdress } from "../utils/location.js";
 
 export class TransportModel {
     async showCarriers(userId: string, transport: VehiclesType){
@@ -399,7 +400,10 @@ export class TransportModel {
                             const orderInfo = await prisma.orders.findFirst({
                                 where: {
                                     id: column.orderId,
-                                    status: "confirmed"
+                                    OR: [
+                                        {status: {not: "inactive"}},
+                                        {status: {not: "deleted"}}
+                                    ]
                                 },
                                 select: {
                                     id: true,
@@ -449,6 +453,7 @@ export class TransportModel {
                             })
 
                             return {
+                                id: column.id,
                                 farm: {
                                     id: orderInfo?.farm.farm.id,
                                     name: orderInfo?.farm.farm.name,
@@ -487,6 +492,74 @@ export class TransportModel {
                 }
             } catch (error) {
                 return {error: "Não foi possível carregar as solicitações de transporte"}
+            }
+        } catch (error) {
+            return {error: "Ocorreu um erro ao verificar informações"}
+        }
+    }
+
+    async acceptRequest(userId: string, requestId: string, latitude: string, longitude: string){
+        try {
+            const carrierRow = await prisma.carriers.findFirst({
+                where: {
+                    carrier: {
+                        id: userId,
+                        status: "active"
+                    }
+                }
+            })
+
+            if(!carrierRow){
+                return {error: "Informações inválidas"}
+            }
+
+            try {
+                const isValidRequest = await prisma.transport_requests.findFirst({
+                    where: {
+                        id: requestId, 
+                        carrierId: carrierRow.id,
+                    },
+                    select: {
+                        id: true,
+                        orderId: true
+                    }
+                })
+
+                if(!isValidRequest){
+                    return {info: "Pedido não encontrado ou inválido"}
+                }
+
+                const isValidCoordinate = await getAdress(latitude, longitude)
+
+                if(isValidCoordinate.error || !isValidCoordinate.sucess){
+                    return {error: isValidCoordinate.error ?? "Coordenadas inválidas"}
+                }
+                
+                try {
+                    await prisma.location.create({
+                        data: {
+                            latitude: latitude,
+                            longitude: longitude, 
+                            orderId: isValidRequest.orderId
+                        }
+                    })
+
+                    await prisma.orders.update({
+                        where: {id: isValidRequest.orderId},
+                        data: {status: "incollection"}
+                    })
+
+                    await prisma.transport_requests.update({
+                        where: {id: isValidRequest.id},
+                        data: {status: "aguardando_coleta"}
+                    })
+
+                    return {message: "Pedido aceite com sucesso. Podes ir à busca do produto com ajuda do mapa"}
+                } catch (error) {
+                    return {error: "Não foi possível aceitar solicitação"}
+                }
+            } catch (error) {
+                return {error: "Não foi possível verificar solicitação"}
             }
         } catch (error) {
             return {error: "Ocorreu um erro ao verificar informações"}
