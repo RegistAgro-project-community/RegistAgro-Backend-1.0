@@ -518,6 +518,7 @@ export class TransportModel {
                     where: {
                         id: requestId, 
                         carrierId: carrierRow.id,
+                        status: "pendente"
                     },
                     select: {
                         id: true,
