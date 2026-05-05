@@ -48,6 +48,8 @@ import { requestTransportPath } from "./paths/requestTransport.path.js"
 import { requestTransportSchema } from "./schemas/requestTransport.schema.js"
 import { getMyVehiclesPath } from "./paths/getMyVehicles.path.js"
 import { getMyRequestsPath } from "./paths/getMyRequests.path.js"
+import { acceptRequestPath } from "./paths/acceptRequest.path.js"
+import { acceptRequestSchema } from "./schemas/acceptRequest.schema.js"
 
 const swaggerOptions = {
   definition: {
@@ -115,7 +117,8 @@ const swaggerOptions = {
       ...findVehiclesPath,
       ...requestTransportPath,
       ...getMyVehiclesPath,
-      ...getMyRequestsPath
+      ...getMyRequestsPath,
+      ...acceptRequestPath
     },
 
     components: {
@@ -140,7 +143,8 @@ const swaggerOptions = {
         ...confirmPaymentSchema,
         ...updateOrdersSchema,
         ...createTransportSchema,
-        ...requestTransportSchema
+        ...requestTransportSchema,
+        ...acceptRequestSchema
       }
     }
   },
