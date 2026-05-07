@@ -40,6 +40,8 @@ export async function getAltLong(adress: string): Promise<location>{
         const res = await fetch(url)
         const data = await res.json() as GeoapifyResponse
 
+        console.log(data)
+
         if(data.features && data.features.length > 0){
             const coordinates = data.features[0]?.geometry.coordinates
             
