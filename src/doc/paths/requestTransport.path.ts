@@ -1,7 +1,7 @@
 export const requestTransportPath = {
     "/transports/request": {
         post: {
-            tags: ["Transports"],
+            tags: ["Transport Requests"],
             summary: "Contratar transportadora pelo seu veículo",
             security: [
                 {bearerAuth: {}}

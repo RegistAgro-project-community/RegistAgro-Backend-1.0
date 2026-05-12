@@ -1,7 +1,7 @@
 export const acceptRequestPath = {
     "/transports/carrier/request/accept": {
         patch: {
-            tags: ["Transports"],
+            tags: ["Transport Requests"],
             summary: "Aceitar pedido de transporte",
             security: [
                 {bearerAuth: []}

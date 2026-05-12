@@ -1,7 +1,7 @@
 export const getMyRequestsPath = {
     '/transports/carrier/request/get': {
         get: {
-            tags: ["Transports"],
+            tags: ["Transport Requests"],
             summary: "Transportadoras visualizam suas solicitações de transporte",
             security: [
                 {bearerAuth: {}}
