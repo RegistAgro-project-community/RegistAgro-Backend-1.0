@@ -50,6 +50,9 @@ import { getMyVehiclesPath } from "./paths/getMyVehicles.path.js"
 import { getMyRequestsPath } from "./paths/getMyRequests.path.js"
 import { acceptRequestPath } from "./paths/acceptRequest.path.js"
 import { acceptRequestSchema } from "./schemas/acceptRequest.schema.js"
+import { updateLocationPath } from "./paths/updateLocation.path.js"
+import { getDirectionPath } from "./paths/getDirection.path.js"
+import { getLocationPath } from "./paths/getLocation.path.js"
 
 const swaggerOptions = {
   definition: {
@@ -79,7 +82,8 @@ const swaggerOptions = {
       { name: "Users", description: "Users actions routes"},
       {name: "Orders", description: "Orders endpoints"},
       {name: "Vehicles", description: "Vehicles endpoints"},
-      {name: "Transport Requests", description: "Carriers transport requests endpoints"}
+      {name: "Transport Requests", description: "Carriers transport requests endpoints"},
+      {name: "Location", description: "GeoLocation endpoints"}
     ],
 
     paths: {
@@ -117,7 +121,10 @@ const swaggerOptions = {
       ...requestTransportPath,
       ...getMyVehiclesPath,
       ...getMyRequestsPath,
-      ...acceptRequestPath
+      ...acceptRequestPath,
+      ...updateLocationPath,
+      ...getDirectionPath,
+      ...getLocationPath
     },
 
     components: {
