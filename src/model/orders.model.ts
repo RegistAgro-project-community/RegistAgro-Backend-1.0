@@ -212,6 +212,13 @@ export class OrdersModel {
                     }
                 })
 
+                const totalIncollectionOrders = await prisma.orders.count({
+                    where: {
+                        farmId: farmRow.id,
+                        status: "incollection"
+                    }
+                })
+
                 if(ordersRow.length == 0){
                     return {info: "Você ainda não possui nenhum pedido"}
                 }
@@ -268,7 +275,8 @@ export class OrdersModel {
                     orders: orders,
                     total: totalOrders,
                     pendents: totalPendentsOrders,
-                    ongoing: totalOngoingOrders
+                    ongoing: totalOngoingOrders,
+                    incollection: totalIncollectionOrders
                 }
             } catch (error) {
                 return {error: "Não foi possível carregar os pedidos"}
