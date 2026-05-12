@@ -258,6 +258,7 @@ model Location {
   longitude String
   latitude  String
   time      DateTime @default(now())
+  update_at DateTime?
   active    Boolean  @default(true)
 
   @@map("location")
