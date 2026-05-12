@@ -547,6 +547,7 @@ export class TransportModel {
                 try {
                     await prisma.location.create({
                         data: {
+                            carrierId: carrierRow.id,
                             latitude: latitude,
                             longitude: longitude, 
                             orderId: isValidRequest.orderId
