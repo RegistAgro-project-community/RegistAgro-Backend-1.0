@@ -1,7 +1,7 @@
 export const findVehiclesPath = {
     "/transports/farms/get/vehicle/{transport}": {
         get: {
-            tags: ["Transports"],
+            tags: ["Vehicles"],
             summary: "Encontrar veículos para contratar transportadora",
             security: [
                 {bearerAuth: {}}

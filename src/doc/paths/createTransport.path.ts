@@ -1,7 +1,7 @@
 export const createTransportPath = {
     "/transports/vehicle/create": {
         post: {
-            tags: ["Transports"],
+            tags: ["Vehicles"],
             summary: "Transportadoras cadastram um novo veículo",
             security: [
                 {bearerAuth: {}}
