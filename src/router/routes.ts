@@ -11,6 +11,7 @@ import paymentController from "../controllers/payment.controller.js";
 import transportController from "../controllers/transport.controller.js";
 import { permission } from "../middlewares/permision.js";
 import { validAccount } from "../middlewares/validAccount.js";
+import locationController from "../controllers/location.controller.js";
 
 const router = Router()
 
@@ -66,5 +67,10 @@ router.post('/transports/request', auth, validAccount(), authorization("farm", "
 router.get('/transports/carriers/vehicles', auth, validAccount(), authorization("carrier", "read"), permission("carrier"), transportController.myVehicles)
 router.get('/transports/carrier/request/get', auth, validAccount(), authorization("carrier", "read"), permission("carrier"), transportController.getRequest)
 router.patch('/transports/carrier/request/accept', auth, validAccount(), authorization("carrier", "update"), permission("carrier"), transportController.acceptRequest)
+
+//Location
+router.put('/location/carrier/update', auth, validAccount(), authorization("carrier", "read"), permission("carrier"),locationController.updateLocation)
+router.get('/location/carrier/direction/request/:id', auth, validAccount(), authorization("carrier", "read"), permission("carrier"), locationController.getDirection)
+router.get('/location/get/coordinates/order/:id', auth, validAccount(), authorization("consumer", "read"), locationController.getLocation)
 
 export { router }
