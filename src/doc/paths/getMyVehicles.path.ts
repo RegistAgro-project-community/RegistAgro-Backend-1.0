@@ -1,7 +1,7 @@
 export const getMyVehiclesPath = {
     '/transports/carriers/vehicles': {
         get: {
-            tags: ["Transports"],
+            tags: ["Vehicles"],
             summary: "Transportadoras visualizam seus transportes",
             security: [
                 {bearerAuth: {}}
