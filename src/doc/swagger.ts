@@ -78,7 +78,8 @@ const swaggerOptions = {
       { name: "Products", description: "Farm Products"},
       { name: "Users", description: "Users actions routes"},
       {name: "Orders", description: "Orders endpoints"},
-      {name: "Transports", description: "Carriers and requests transport endpoints"}
+      {name: "Vehicles", description: "Vehicles endpoints"},
+      {name: "Transport Requests", description: "Carriers transport requests endpoints"}
     ],
 
     paths: {
