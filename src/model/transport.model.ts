@@ -452,8 +452,16 @@ export class TransportModel {
                                 }
                             })
 
+                            const earning = await prisma.payments.findFirst({
+                                where: {orderId: column.orderId},
+                                select: {transportValue: true}
+                            })
+
                             return {
                                 id: column.id,
+                                status: column.status,
+                                delivered_at: column.delivered_at,
+                                start_at: column.start_at,
                                 farm: {
                                     id: orderInfo?.farm.farm.id,
                                     name: orderInfo?.farm.farm.name,
@@ -468,7 +476,7 @@ export class TransportModel {
                                     price: `${orderInfo?.product.price}Kz`,
                                     photo: orderInfo?.product.photo,
                                     qtd: `${orderInfo?.qtd}${orderInfo?.unit == "t" ? "ton" : "kg"}`,
-                                    value: `${orderInfo?.value}Kz`,
+                                    earning: `${earning?.transportValue}Kz`,
                                     delivery_adress: orderInfo?.delivery
                                 },
                                 vehicle: {
@@ -550,9 +558,14 @@ export class TransportModel {
                         data: {status: "incollection"}
                     })
 
+                    const start_at = new Date()
+
                     await prisma.transport_requests.update({
                         where: {id: isValidRequest.id},
-                        data: {status: "aguardando_coleta"}
+                        data: {
+                            status: "aguardando_coleta",
+                            start_at: start_at
+                        }
                     })
 
                     return {message: "Pedido aceite com sucesso. Podes ir à busca do produto com ajuda do mapa"}
