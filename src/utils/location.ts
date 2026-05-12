@@ -34,7 +34,18 @@ interface GeoapifyLocation {
 export async function getAltLong(adress: string): Promise<location>{
     const api_key = process.env.GEOAPIFY_KEY
 
-    const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(adress)}&apiKey=${api_key ?? ""}`
+    const boundingBox = "12.85,-9.40,13.80,-8.40"
+
+    const params = new URLSearchParams({
+        text: adress,
+        apiKey: api_key ?? "",
+        country: "ao",
+        filter: `rect:${boundingBox}`,
+        bias: "proximity:-8.8390,13.2344",
+        limit: "5"
+    })
+
+    const url = `https://api.geoapify.com/v1/geocode/search?${params.toString()}`
 
     try {
         const res = await fetch(url)
@@ -42,7 +53,6 @@ export async function getAltLong(adress: string): Promise<location>{
 
         
         if(data.features && data.features.length > 0){
-            console.log(data.features[0])
             const coordinates = data.features[0]?.geometry.coordinates
             
             return {
@@ -62,7 +72,7 @@ export async function getAltLong(adress: string): Promise<location>{
 export async function getAdress(latitude: string, longitude: string): Promise<GeoapifyLocation>{
     const api_key = process.env.GEOAPIFY_KEY
     
-    const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&apiKey=${api_key}`
+    const url = `https://api.geoapify.com/v1/geocode/reverse?lat=${latitude}&lon=${longitude}&apiKey=${api_key ?? ""}`
 
     try {
         const res = await fetch(url)
