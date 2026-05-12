@@ -5,7 +5,7 @@ import 'dotenv/config.js'
 import path from "node:path";
 import { image } from "../utils/image.js";
 import { verifyStock } from "../utils/verifyStock.js";
-import { getAdress } from "../utils/location.js";
+import { getAdress } from "../services/location.service.js";
 
 export class TransportModel {
     async showCarriers(userId: string, transport: VehiclesType){

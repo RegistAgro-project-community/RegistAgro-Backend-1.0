@@ -3,7 +3,7 @@ import { prisma } from "../../../lib/prisma.js"
 import { redisClient } from "../../config/redis.config.js"
 import { sendEmailWithOTP, verifyOTPCode } from "../../services/email.service.js"
 import { DataValidate } from "../../utils/data.validate.js"
-import { getAltLong } from "../../utils/location.js"
+import { getAltLong } from "../../services/location.service.js"
 import { PasswordHash } from "../../utils/password.hash.js"
 import jwt from 'jsonwebtoken'
 

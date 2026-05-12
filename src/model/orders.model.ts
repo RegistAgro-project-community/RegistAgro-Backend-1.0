@@ -5,7 +5,7 @@ import { paymentSplit } from "../utils/paymentSplit.js";
 import { Payments } from "../services/payment.service.js";
 import { orderPrice } from "../utils/orderPrice.js";
 import { verifyStock } from "../utils/verifyStock.js";
-import { getAltLong } from "../utils/location.js";
+import { getAltLong } from "../services/location.service.js";
 
 const paymentModel = new Payments()
 
