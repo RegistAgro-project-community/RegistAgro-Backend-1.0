@@ -88,6 +88,7 @@ model Carriers {
   vehicles          Vehicles[]
   routes            Routes[]
   transportRequests Transport_requests[]
+  locations         Location[]
 
   @@map("carriers")
 }
@@ -250,12 +251,16 @@ model Routes {
 
 model Location {
   id        String   @id @default(uuid())
+  carrier   Carriers @relation(fields: [carrierId], references: [id])
+  carrierId String
   order     Orders   @relation(fields: [orderId], references: [id])
   orderId   String
   longitude String
   latitude  String
   time      DateTime @default(now())
   active    Boolean  @default(true)
+
+  @@map("location")
 }
 
 model VerificationCode {
