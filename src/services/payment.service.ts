@@ -1,9 +1,23 @@
+import { id } from "zod/v4/locales"
 import { prisma } from "../../lib/prisma.js"
 import { referenceGenerate } from "../utils/referenceGenerate.js"
 
 interface PaymentResult {
     reference?: String
     error?: String
+}
+
+interface ReleasePayment {
+    error?: string
+    success: boolean
+    data?: {
+        reference: number
+        total: string
+        farmValue: string
+        transportValue: string
+        registagroValue: string
+        status: string
+    }
 }
 
 export class Payments {
@@ -149,6 +163,78 @@ export class Payments {
             }
         } catch (error) {
             return {error: "Não foi possível verificar informações"}
+        }
+    }
+
+    async releasePayment(orderId: string): Promise<ReleasePayment>{
+        try {
+            const paymentData = await prisma.transport_requests.findFirst({
+                where: {orderId: orderId},
+                select: {
+                    carrierId: true,
+                    order: {
+                        select: {farmId: true}
+                    }
+                }
+            })
+            
+            const farmId = paymentData!.order.farmId
+            const carrierId = paymentData!.carrierId
+
+            const farmBalance = await prisma.farms.findFirst({
+                where: {id: farmId},
+                select: {balance: true}
+            }) 
+
+            const carrierBalance = await prisma.carriers.findFirst({
+                where: {id: carrierId},
+                select: {balance: true}
+            })
+
+            var paymentRow = await prisma.payments.findFirst({
+                where: {orderId: orderId},
+            })
+
+            try {
+                const farmValue = paymentRow!.farmValue + farmBalance!.balance
+                const carrierValue = paymentRow!.transportValue + carrierBalance!.balance
+
+
+                await prisma.farms.update({
+                    where: {id: farmId},
+                    data: {balance: farmValue}
+                })
+
+                await prisma.carriers.update({
+                    where: {id: carrierId},
+                    data: {balance: carrierValue}
+                })
+
+                await prisma.payments.updateMany({
+                    where: {orderId: orderId},
+                    data: {status: "released"}
+                })
+
+                paymentRow = await prisma.payments.findFirst({
+                    where: {orderId: orderId},
+                })
+
+                return {
+                    success: true, 
+                    data: {
+                        reference: Number(paymentRow!.reference),
+                        farmValue: `${paymentRow!.farmValue}Kz`,
+                        transportValue: `${paymentRow!.transportValue}Kz`,
+                        registagroValue: `${paymentRow!.registagroValue}Kz`,
+                        total: `${paymentRow!.value}Kz`,
+                        status: paymentRow!.status
+                    }
+                }
+            } catch (error) {
+                return {error: "Ocorreu um erro ao realizar transação", success: false}
+            }
+        } catch (error) {
+            return {error: "Ocorreu um erro ao buscar informações", success: false}
         }
     }
 }
