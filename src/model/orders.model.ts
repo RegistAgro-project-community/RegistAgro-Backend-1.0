@@ -219,6 +219,13 @@ export class OrdersModel {
                     }
                 })
 
+                const totalDeliveredOrders = await prisma.orders.count({
+                    where: {
+                        farmId: farmRow.id,
+                        status: "delivered"
+                    }
+                })
+
                 if(ordersRow.length == 0){
                     return {info: "Você ainda não possui nenhum pedido"}
                 }
@@ -233,6 +240,39 @@ export class OrdersModel {
                         const transportRequest = await prisma.transport_requests.findFirst({
                             where: {orderId: column.id},
                             select: {status: true}
+                        })
+
+                        const transportRow = await prisma.transport_requests.findFirst({
+                            where: {
+                                orderId: column.id,
+                                OR: [
+                                    {status: "aguardando_coleta"},
+                                    {status: "entregue"},
+                                    {status: "em_transporte"}
+                                ]
+                            },
+                            select: {
+                                carrier: {
+                                    select: {
+                                        carrier: {
+                                            select: {
+                                                name: true,
+                                                phone: true,
+                                                adress: true,
+                                                province: true
+                                            }
+                                        }
+                                    }
+                                },
+                                start_at: true,
+                                delivered_at: true,
+                                vehicle: {
+                                    select: {
+                                        brand: true,
+                                        plate: true,
+                                    }
+                                }
+                            }
                         })
                         
                         return {
@@ -251,6 +291,16 @@ export class OrdersModel {
                                     profile: true
                                 }
                             }),
+                            transport: transportRow ? {
+                                carrier: transportRow.carrier.carrier.name,
+                                phone: transportRow.carrier.carrier.phone,
+                                province: transportRow.carrier.carrier.province,
+                                adress: transportRow.carrier.carrier.adress,
+                                brand: transportRow.vehicle.brand,
+                                plate: transportRow.vehicle.plate,
+                                start_at: transportRow.start_at,
+                                delivered_at: transportRow.delivered_at
+                            } : null,
                             product: await prisma.products.findFirst({
                                 where: {id: column.productId},
                                 select: {
@@ -266,7 +316,8 @@ export class OrdersModel {
                             value: column.value,
                             status: column.status,
                             created_at: column.created_at,
-                            transport_status: `${column.status != "pendent" ? transportRequest?.status : null}`
+                            transport_status: `${column.status != "pendent" ? transportRequest?.status : null}`,
+                            delivery_adress: column.delivery
                         }
                     })
                 )
@@ -276,7 +327,8 @@ export class OrdersModel {
                     total: totalOrders,
                     pendents: totalPendentsOrders,
                     ongoing: totalOngoingOrders,
-                    incollection: totalIncollectionOrders
+                    incollection: totalIncollectionOrders,
+                    delivered: totalDeliveredOrders
                 }
             } catch (error) {
                 return {error: "Não foi possível carregar os pedidos"}
