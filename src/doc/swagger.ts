@@ -53,6 +53,9 @@ import { acceptRequestSchema } from "./schemas/acceptRequest.schema.js"
 import { updateLocationPath } from "./paths/updateLocation.path.js"
 import { getDirectionPath } from "./paths/getDirection.path.js"
 import { getLocationPath } from "./paths/getLocation.path.js"
+import { startFlowPath } from "./paths/startFlow.path.js"
+import { finishFlowPath } from "./paths/finishFlow.path.js"
+import { completeFlowPath } from "./paths/completeFlow.path.js"
 
 const swaggerOptions = {
   definition: {
@@ -83,7 +86,8 @@ const swaggerOptions = {
       {name: "Orders", description: "Orders endpoints"},
       {name: "Vehicles", description: "Vehicles endpoints"},
       {name: "Transport Requests", description: "Carriers transport requests endpoints"},
-      {name: "Location", description: "GeoLocation endpoints"}
+      {name: "Location", description: "GeoLocation endpoints"},
+      {name: "Flow", description: "Flow process endpoints"}
     ],
 
     paths: {
@@ -124,7 +128,10 @@ const swaggerOptions = {
       ...acceptRequestPath,
       ...updateLocationPath,
       ...getDirectionPath,
-      ...getLocationPath
+      ...getLocationPath,
+      ...startFlowPath,
+      ...finishFlowPath,
+      ...completeFlowPath
     },
 
     components: {
