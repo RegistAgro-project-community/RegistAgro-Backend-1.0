@@ -12,6 +12,7 @@ import transportController from "../controllers/transport.controller.js";
 import { permission } from "../middlewares/permision.js";
 import { validAccount } from "../middlewares/validAccount.js";
 import locationController from "../controllers/location.controller.js";
+import flowController from "../controllers/flow.controller.js";
 
 const router = Router()
 
@@ -72,5 +73,10 @@ router.patch('/transports/carrier/request/accept', auth, validAccount(), authori
 router.put('/location/carrier/update', auth, validAccount(), authorization("carrier", "read"), permission("carrier"),locationController.updateLocation)
 router.get('/location/carrier/direction/request/:id', auth, validAccount(), authorization("carrier", "read"), permission("carrier"), locationController.getDirection)
 router.get('/location/get/coordinates/order/:id', auth, validAccount(), authorization("consumer", "read"), locationController.getLocation)
+
+//Flow
+router.patch('/flow/farm/start/order/:id', auth, validAccount(), authorization("farm", "update"), permission("farm"), flowController.startFlow)
+router.patch('/flow/carrier/finish/request/:id', auth, validAccount(), authorization("carrier", "update"), permission("carrier"), flowController.finishFlow)
+router.put('/flow/consumer/complete/order/:id', auth, validAccount(), authorization("consumer", "update"), permission("consumer"), flowController.completeOrder)
 
 export { router }
