@@ -150,12 +150,31 @@ export class UsersModel {
                         return {
                             message: "Dados carregado com sucesso",
                             data: userRow,
-                            nif: farmId.nif
+                            nif: farmId.nif,
+                            balance: `${farmId.balance}Kz`
                         }
                     } catch (error) {
                         return {error: "Ocorreu um erro inesperado"}
                     }
                     break;
+                case "carrier":
+                    try {
+                        const carrierRow = await prisma.carriers.findFirst({
+                            where: {carrierId: userId}
+                        })
+
+                        if(!carrierRow){
+                            return {error: "Informações inválidas"}
+                        }
+
+                        return {
+                            message: "Dados carregado com sucesso",
+                            data: userRow,
+                            balance: `${carrierRow.balance}Kz`
+                        }
+                    } catch (error) {
+                        return {error: "Ocorreu um erro inesperado"}
+                    }
                 default:
                     return {
                         message: "Dados carregado com sucesso",
