@@ -4,9 +4,33 @@ import { prisma } from "../../lib/prisma.js";
 import { notFound } from "../errors/notFound.js";
 import path from "path";
 import { image } from "../utils/image.js";
+import { DataValidate } from "../utils/data.validate.js";
+import { getAltLong } from "../services/location.service.js";
 
 export class UsersModel {
     async update(userId: string, name: string, adress: string, province: Province){
+        const validData = new DataValidate()
+        const validName = validData.name(name)
+
+        if(!validName){
+            return {
+                valid: false,
+                error: "Nome muito curto"
+            }
+        }
+
+        const isValidAdress = await getAltLong(adress)
+        
+        if(isValidAdress.error){
+            return {error: isValidAdress.error}
+        }
+
+        const state = isValidAdress.state?.split(" ")[0] ?? ""
+
+        if(province != state){
+            return {error: "O seu endereço não pertence a sua província"}
+        }
+
         try {
             const userRow = await prisma.users.update({
                 where: {
