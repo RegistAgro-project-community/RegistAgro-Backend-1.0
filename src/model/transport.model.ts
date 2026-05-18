@@ -204,26 +204,31 @@ export class TransportModel {
             }
 
             const requestRow = await prisma.transport_requests.findFirst({
-                where: {orderId: orderId}
+                where: {
+                    orderId: orderId,
+                    status: {
+                        notIn: ["rejeitado", "cancelado"]
+                    }
+                }
             })
+
+            if(requestRow?.status == "rejeitado" && requestRow.vehicleId == vehicleId){
+                return {warning: "O sua solicitação foi rejeitada pela transportadora. Solicite outro transporte"}
+            }
 
             if(requestRow){
                 switch (requestRow.status) {
                     case "pendente":
                         return {warning: "Esta solicitação já foi feita. Aguarde pela confirmação da transportadora"}
 
-                    case "aceite":
-                        return {warning: "A sua solicitação já foi aceite. Aguarde pelo início da entrega."}
+                    case "aguardando_coleta":
+                        return {warning: "A sua solicitação está no processo de coleta. Aguarde pela finalização da entrega."}
 
                     case "em_transporte":
                         return {warning: "A sua solicitação já está em andamento. Aguarde pela finalização da entrega"}
 
                     case "entregue":
                         return {warning: "A sua solicitação já foi entregue. Confirme o seu pagamento ou aguarde pela confirmação do consumidor"}
-
-                    default:
-                        return {warning: "O sua solicitação foi rejeitada pela transportadora. Solicite outro transporte"}
-                        break;
                 }
 
             }
@@ -275,7 +280,7 @@ export class TransportModel {
                     })
 
                     if(carrierRow?.busy){
-                        return {error: "Não é possível contratar este veículo. A transportadora encontra-se em outra viagem"}
+                        return {error: "Não é possível contratar este veículo. A transportadora encontra-se ocupada"}
                     }
 
                     const request = await prisma.transport_requests.create({
