@@ -86,7 +86,8 @@ export class FlowModel {
                                     }
                                 }
                             }
-                        }
+                        },
+                        orderId: true
                     }
                 })
 
@@ -103,6 +104,11 @@ export class FlowModel {
                             status: "entregue",
                             delivered_at: delivered_at
                         }
+                    })
+
+                    await prisma.orders.update({
+                        where: {id: requestRow.orderId},
+                        data: {status: "delivered"}
                     })
 
                     const consumer: string = requestRow.order.consumer.consumer.name
@@ -137,7 +143,7 @@ export class FlowModel {
                     where: {
                         id: orderId,
                         consumerId: consumerRow.id,
-                        status: "ongoing"
+                        status: "delivered"
                     }
                 })
 
