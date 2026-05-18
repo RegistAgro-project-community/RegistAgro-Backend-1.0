@@ -406,6 +406,18 @@ class AuthModel {
             }
         }
 
+        const isValidAdress = await getAltLong(adress)
+        
+        if(isValidAdress.error){
+            return {error: isValidAdress.error}
+        }
+
+        const state = isValidAdress.state?.split(" ")[0] ?? ""
+
+        if(province != state){
+            return {error: "O seu endereço não pertence a sua província"}
+        }
+
         try {
             const hashClass = new PasswordHash()
             const hash = await hashClass.generate(pass1)
