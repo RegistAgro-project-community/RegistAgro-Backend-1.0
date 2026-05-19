@@ -31,7 +31,7 @@ router.get('/auth/signup/verify/:code', authController.verifyCode)
 router.get('/auth/signup/nif/:nif', authController.verifyNif)
 router.post('/auth/farm/signup', auth, authorization("farm", "create"), authController.createFarmPass)
 router.post('/auth/farm/login', authController.farmSignIn)
-router.post('/auth/login', authController.login)
+router.post('/auth/login/:rule', authController.login)
 
 //Products
 router.post('/products/create', auth, validAccount(), authorization("farm", "create"), productsController.create)

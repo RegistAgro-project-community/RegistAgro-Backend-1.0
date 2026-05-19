@@ -101,11 +101,20 @@ class AuthController {
     }
 
     async login(req: Request, res: Response){
+        const rule = req.params["rule"]
+
+        if(ruleValidation(rule!, res)){
+            return res.status(400).json({
+                error: `Parametro {${rule}} invalido`,
+                validParameteres: ["consumer", "carrier"] 
+            })
+        }
+
         try {
             const { email, password } = loginSchema.parse(req.body)
 
             try {
-                const loginResult = await authModel.login(email, password)
+                const loginResult = await authModel.login(email, password, rule as Rule)
 
                 if(!loginResult.valid){
                     return res.status(400).json(loginResult)

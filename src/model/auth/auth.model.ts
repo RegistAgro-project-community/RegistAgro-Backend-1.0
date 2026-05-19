@@ -455,16 +455,13 @@ class AuthModel {
 
     }
 
-    async login(email: string, pass: string){
+    async login(email: string, pass: string, rule: Rule){
         try {
             const userData = await prisma.users.findUnique({
                 where: {
                     email: email,
                     status: "active",
-                    OR: [
-                        {rule: "carrier"},
-                        {rule: "consumer"}
-                    ]
+                    rule: rule
                 }
             })
 
