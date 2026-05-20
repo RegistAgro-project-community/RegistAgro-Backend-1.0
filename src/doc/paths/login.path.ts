@@ -1,8 +1,19 @@
 export const loginPath = {
-    '/auth/login': {
+    '/auth/login/{rule}': {
         post: {
             tags: ["Auth"],
             summary: "Login dos consumidores e transportadoras",
+            parameters: [
+                {
+                    name: "rule",
+                    in: "path",
+                    required: true,
+                    schema: {
+                        type: "string",
+                        example: "consumer"
+                    }
+                }
+            ],
             requestBody: {
                 required: true,
                 content: {
