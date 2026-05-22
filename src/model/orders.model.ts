@@ -39,6 +39,10 @@ export class OrdersModel {
                 return {error: "Essa fazenda não existe"}
             }
 
+            if(qtd < 10 && unit == "kg"){
+                return {error: "Não é possível fazer pedido de produtos abaixo de 10Kg"}
+            }
+
             try {
                 const productRow = await prisma.products.findFirst({
                     where: {
