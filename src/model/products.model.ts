@@ -628,8 +628,13 @@ export class ProductsModel {
                                 id: true,
                                 name: true,
                                 profile: true,
+                                adress: true,
+                                email: true,
+                                phone: true,
+                                province: true,
                             }
                         },
+                        nif: true,
                         products: {
                             where: {status: "active"},
                             select: {
@@ -648,7 +653,16 @@ export class ProductsModel {
                 })
 
                 const products = farmsAndProducts.filter(key => key.products.length > 0).map(key =>({
-                    farm: key.farm,
+                    farm: {
+                        id: key.farm.id,
+                        name: key.farm.name,
+                        profile: key.farm.profile,
+                        adress: key.farm.adress,
+                        email: key.farm.email,
+                        phone: key.farm.phone,
+                        province: key.farm.province,
+                        nif: key.nif
+                    },
                     products: key.products.map(key =>{
                         return {
                             id: key.id,
