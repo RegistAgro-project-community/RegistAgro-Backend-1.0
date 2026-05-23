@@ -632,6 +632,7 @@ export class ProductsModel {
                                 email: true,
                                 phone: true,
                                 province: true,
+                                created_at: true
                             }
                         },
                         nif: true,
@@ -661,7 +662,8 @@ export class ProductsModel {
                         email: key.farm.email,
                         phone: key.farm.phone,
                         province: key.farm.province,
-                        nif: key.nif
+                        nif: key.nif,
+                        created_at: key.farm.created_at
                     },
                     products: key.products.map(key =>{
                         return {
