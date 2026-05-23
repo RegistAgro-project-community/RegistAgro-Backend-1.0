@@ -192,12 +192,19 @@ export class Payments {
             })
 
             var paymentRow = await prisma.payments.findFirst({
-                where: {orderId: orderId},
+                where: {
+                    orderId: orderId,
+                    status: "retained"
+                },
             })
 
+            if(!paymentRow){
+                return {error: "Não é possível realizar transação", success: false}
+            }
+
             try {
-                const farmValue = paymentRow!.farmValue + farmBalance!.balance
-                const carrierValue = paymentRow!.transportValue + carrierBalance!.balance
+                const farmValue = paymentRow.farmValue + farmBalance!.balance
+                const carrierValue = paymentRow.transportValue + carrierBalance!.balance
 
 
                 await prisma.farms.update({
