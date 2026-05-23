@@ -1,9 +1,9 @@
 import { rateLimit } from "express-rate-limit";
 
 const limiter = rateLimit({
-    windowMs: 5 * 60 * 1000,
-    limit: 50,
-    max: 50,
+    windowMs: 60 * 1000,
+    limit: 100,
+    max: 100,
     message: {
         error: "Limite de requisições excedido",
         retryAfter: "5 minutos"
@@ -11,7 +11,7 @@ const limiter = rateLimit({
     handler: (req, res) =>{
         return res.status(429).json({
             error: "Limite de requisições excedido",
-            retryAfter: "5 minutos"
+            retryAfter: "1 minuto0"
         })
     }
 })
