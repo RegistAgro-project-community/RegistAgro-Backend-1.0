@@ -485,6 +485,11 @@ export class OrdersModel {
                             select: {farmId: true}
                         })
 
+                        const paymentStatus = await prisma.payments.findFirst({
+                            where: {orderId: column.id},
+                            select: {status: true}
+                        })
+
                         return {
                             id: column.id,
                             farm: await prisma.users.findFirst({
@@ -507,7 +512,8 @@ export class OrdersModel {
                             unit: column.unit,
                             total: `${column.value}Kz`,
                             status: column.status,
-                            created_at: column.created_at
+                            created_at: column.created_at,
+                            payment_status: paymentStatus?.status
                         }
                     })
                 )
