@@ -24,6 +24,10 @@ export class ProductsModel {
             return {error: "O preço do produto não pode ser abaixo de 500Kz"}
         }
 
+        if(price >= 5000){
+            return {error: "O preço do produto não pode ser acima de 5000Kz"}
+        }
+
         try {
             const farmId = await prisma.farms.findFirst({
                 where: {
@@ -200,6 +204,10 @@ export class ProductsModel {
 
         if(price < 500){
             return {error: "O preço do produto não pode ser abaixo de 500Kz"}
+        }
+
+        if(price >= 5000){
+            return {error: "O preço do produto não pode ser acima de 5000Kz"}
         }
 
         try {
