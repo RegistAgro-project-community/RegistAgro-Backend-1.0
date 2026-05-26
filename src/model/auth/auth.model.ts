@@ -13,13 +13,13 @@ class AuthModel {
 
         const validNumber = validData.phoneNumber(phone)
         const validName = validData.name(name)
-        const validEmail = validData.email(email)
+        const validEmail = await validData.email(email)
         const isValidPassword = validData.password(pass1)
 
         if(!validName){
             return {
                 valid: false,
-                message: "Nome muito curto"
+                message: "Nome inválido"
             }
         }
 
