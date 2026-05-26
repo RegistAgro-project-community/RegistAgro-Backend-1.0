@@ -227,6 +227,29 @@ export class LocationModel {
                             {status: "incollection"},
                             {status: "ongoing"}
                         ]
+                    },
+                    select: {
+                        status: true,
+                        farm: {
+                            select: {
+                                farm: {
+                                    select: {
+                                        province: true,
+                                        adress: true
+                                    }
+                                }
+                            }
+                        },
+                        consumer: {
+                            select: {
+                                consumer: {
+                                    select: {
+                                        adress: true,
+                                        province: true
+                                    }
+                                }
+                            }
+                        }
                     }
                 })
 
@@ -234,16 +257,67 @@ export class LocationModel {
                     return {info: "Pedido não encontrado ou inválido"}
                 }
 
+                if(orderRow.status == "incollection"){
+                    try {
+                        const farmAdress = orderRow.farm.farm.adress
+
+                        const farmCoordinates = await getAltLong(farmAdress)
+
+                        if(farmCoordinates.error){
+                            return {errror: farmCoordinates.error}
+                        }
+
+                        const coordinates = await prisma.location.findFirst({
+                            where: {
+                                orderId: orderId,
+                                active: true
+                            }
+                        })
+                        
+                        return {
+                            destination: [
+                                farmCoordinates.latitude,
+                                farmCoordinates.longitude
+                            ],
+                            origin: [
+                                coordinates?.latitude,
+                                coordinates?.longitude
+                            ],
+                            start_at: coordinates?.time,
+                            update_at: coordinates?.update_at
+                        }
+                    } catch (error) {
+                        return {error: "Ocorreu um erro ao carregar coordenadas"}
+                    }
+                }
+
                 try {
-                    const coordinates = await prisma.location.findFirst({
-                        where: {orderId: orderId}
+                    const consumerAdress = orderRow.consumer.consumer.adress
+
+                    const consumerCoordinates = await getAltLong(consumerAdress)
+
+                    if(consumerCoordinates.error){
+                        return {error: consumerCoordinates.error}
+                    }
+
+                    const carrierCoordinates = await prisma.location.findFirst({
+                        where: {
+                            orderId: orderId,
+                            active: true
+                        }
                     })
 
                     return {
-                        latitude: coordinates?.latitude,
-                        longitude: coordinates?.longitude,
-                        start_at: coordinates?.time,
-                        update_at: coordinates?.update_at
+                        destination: [
+                            consumerCoordinates.latitude,
+                            consumerCoordinates.longitude
+                        ],
+                        origin: [
+                            carrierCoordinates?.latitude,
+                            carrierCoordinates?.longitude
+                        ],
+                        start_at: carrierCoordinates?.time,
+                        update_at: carrierCoordinates?.update_at
                     }
                 } catch (error) {
                     return {error: "Não foi possível carregar coordenadas"}
