@@ -23,6 +23,10 @@ export class ProductsModel {
                 return {info: "Informações inválidas"}
             }
 
+            if(stock <= 0){
+                return {error: "Estoque inválido"}
+            }
+
             try {
                 const isRegistered = await prisma.products.findFirst({
                     where: {
