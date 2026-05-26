@@ -1,5 +1,13 @@
 import { isAngolaPhoneValid } from "validador-numero-angola"
 import EmailValidator from 'email-validator'
+import fetch from "node-fetch"
+
+interface ValidEmail {
+    email_deliverability: {
+        status: "undeliverable" | "deliverable"
+        status_detail: "invalid_mailbox" | "valid_email"
+    }
+}
 
 class DataValidate{
     name(name: string){
@@ -29,10 +37,19 @@ class DataValidate{
         
     }
 
-    email(email: string){
+    async email(email: string){
         //Validando email
-        const validador = EmailValidator
-        return validador.validate(email)
+        const api_key = process.env.EMAIL_KEY
+        
+        const isValidEmail = await fetch(`https://emailreputation.abstractapi.com/v1/?api_key=${api_key ?? ""}&email=${email}`)
+
+        const res = await isValidEmail.json() as ValidEmail
+
+        if(res.email_deliverability.status_detail == "invalid_mailbox" || res.email_deliverability.status == "undeliverable"){
+            return false
+        }
+
+        return true
     }
 
     password(pass: string){
