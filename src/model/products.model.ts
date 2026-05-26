@@ -5,9 +5,25 @@ import { notFound } from "../errors/notFound.js";
 import type { UploadedFile } from 'express-fileupload';
 import { image } from "../utils/image.js";
 import 'dotenv/config.js'
+import { DataValidate } from "../utils/data.validate.js";
 
 export class ProductsModel {
     async create(img: UploadedFile | undefined,userId: string, name: string, description: string, price: number, stock: number, unit: Stock, type: ProductsType, transport: VehiclesType){
+        const validData = new DataValidate()
+        const validName = validData.name(name)
+
+        if(!validName){
+            return {error: "Nome do produto inválido"}
+        }
+
+        if(stock <= 0){
+            return {error: "Estoque inválido"}
+        }
+
+        if(price < 500){
+            return {error: "O preço do produto não pode ser abaixo de 500Kz"}
+        }
+
         try {
             const farmId = await prisma.farms.findFirst({
                 where: {
@@ -171,6 +187,21 @@ export class ProductsModel {
     }
 
     async update(productId: string, userId: string, name: string, description: string, price: number, stock: number, unit: Stock){
+        const validData = new DataValidate()
+        const validName = validData.name(name)
+
+        if(!validName){
+            return {error: "Nome do produto inválido"}
+        }
+
+        if(stock <= 0){
+            return {error: "Estoque inválido"}
+        }
+
+        if(price < 500){
+            return {error: "O preço do produto não pode ser abaixo de 500Kz"}
+        }
+
         try {
             const farmId = await prisma.farms.findFirst({
                 where: {farmId: userId},
