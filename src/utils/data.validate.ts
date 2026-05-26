@@ -6,6 +6,16 @@ class DataValidate{
         if(name.length <= 3){
             return false
         }
+
+        const hasInvalidChar = /[^a-zA-ZÀ-ÿ\s]/.test(name)
+        if (hasInvalidChar) {
+            return false
+        }
+
+        if (name.trimStart() != name) {
+            return false
+        }
+        
         //Removendo os espaços e transformando em capitalize
         const arrayNames = name.split(" ")
         let configName: string[] = []
