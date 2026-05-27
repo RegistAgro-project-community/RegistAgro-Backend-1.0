@@ -2,7 +2,7 @@ import { rateLimit } from "express-rate-limit";
 
 const limiter = rateLimit({
     windowMs: 60 * 1000,
-    limit: 100,
+    limit: 200,
     max: 100,
     message: {
         error: "Limite de requisições excedido",
