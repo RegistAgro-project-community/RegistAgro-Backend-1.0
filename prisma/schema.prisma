@@ -263,24 +263,3 @@ model Location {
 
   @@map("location")
 }
-
-model VerificationCode {
-  id    String   @id @default(uuid())
-  email String
-  code  Int
-  used  Boolean  @default(false)
-  date  DateTime @default(now())
-}
-
-model PendingUser {
-  id       String @id @default(uuid())
-  name     String
-  email    String @unique
-  phone    String @unique
-  rule     Rule
-  adress   String
-  province String
-  password String
-
-  @@map("pendingUser")
-}
