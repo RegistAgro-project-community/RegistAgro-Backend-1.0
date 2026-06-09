@@ -1,6 +1,7 @@
 import { id } from "zod/v4/locales"
 import { prisma } from "../../lib/prisma.js"
 import { referenceGenerate } from "../utils/referenceGenerate.js"
+import { reduceStock } from "../utils/orderPrice.js"
 
 interface PaymentResult {
     reference?: String
@@ -86,12 +87,48 @@ export class Payments {
                         reference: reference,
                         order: {consumerId: userRow.id},
                         status: "pendent"
+                    },
+                    select: {
+                        order: {
+                            select: {
+                                id: true,
+                                qtd: true,
+                                unit: true
+                            }
+                        }
                     }
                 })
 
                 if(!orderRow){
                     return {error: "Referência inválida"}
                 }
+
+                const productRow = await prisma.orders.findFirst({
+                    where: {id: orderRow.order.id},
+                    select: {
+                        product: {
+                            select: {
+                                id: true,
+                                stock: true,
+                                unit: true
+                            }
+                        }
+                    }
+                })
+                
+                if(!productRow){
+                    return {error: "Não é possível efetuar pagamento"}
+                }
+
+                const stock = reduceStock(orderRow.order.qtd, orderRow.order.unit, productRow.product.stock, productRow.product.unit)
+
+                await prisma.products.update({
+                    where: {id: productRow.product.id},
+                    data: {
+                        stock: stock.productQtd,
+                        unit: stock.productUnit
+                    }
+                })
 
                 try {
                     const updated = await prisma.payments.update({
