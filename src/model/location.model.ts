@@ -1,7 +1,8 @@
 import { prisma } from "../../lib/prisma.js"
-import { getAdress, getAltLong } from "../services/location.service.js"
+import { GeoapifyGeocoder, type Geocoder } from "../services/geocoder.js"
 
 export class LocationModel {
+    constructor(private readonly geocoder: Geocoder = new GeoapifyGeocoder()) {}
     async updateLocation(userId: string, requestId: string, latitude: string, longitude: string){
         try {
             const carrierRow = await prisma.carriers.findFirst({
@@ -34,7 +35,7 @@ export class LocationModel {
                     return {info: "Pedido não encontrado ou inválido"}
                 }
 
-                const isValidCoordinate = await getAdress(latitude, longitude)
+                const isValidCoordinate = await this.geocoder.reverseGeocode(latitude, longitude)
                 
                 if(isValidCoordinate.error || !isValidCoordinate.sucess){
                     return {error: isValidCoordinate.error ?? "Coordenadas inválidas"}
@@ -132,7 +133,7 @@ export class LocationModel {
                     try {
                         const farmAdress = isValidRequest.order.farm.farm.adress
     
-                        const farmCoordinates = await getAltLong(farmAdress)
+                        const farmCoordinates = await this.geocoder.geocode(farmAdress)
     
                         if(farmCoordinates.error){
                             return {error: farmCoordinates.error}
@@ -167,7 +168,7 @@ export class LocationModel {
                 try {
                     const consumerAdress = isValidRequest.order.consumer.consumer.adress
 
-                    const consumerCoordinates = await getAltLong(consumerAdress)
+                    const consumerCoordinates = await this.geocoder.geocode(consumerAdress)
     
                     if(consumerCoordinates.error){
                         return {error: consumerCoordinates.error}
@@ -222,6 +223,7 @@ export class LocationModel {
                 const orderRow = await prisma.orders.findFirst({
                     where: {
                         id: orderId,
+                        consumer: { consumerId: userId },
                         OR: [
                             {status: "delivered"},
                             {status: "incollection"},
@@ -261,7 +263,7 @@ export class LocationModel {
                     try {
                         const farmAdress = orderRow.farm.farm.adress
 
-                        const farmCoordinates = await getAltLong(farmAdress)
+                        const farmCoordinates = await this.geocoder.geocode(farmAdress)
 
                         if(farmCoordinates.error){
                             return {errror: farmCoordinates.error}
@@ -294,7 +296,7 @@ export class LocationModel {
                 try {
                     const consumerAdress = orderRow.consumer.consumer.adress
 
-                    const consumerCoordinates = await getAltLong(consumerAdress)
+                    const consumerCoordinates = await this.geocoder.geocode(consumerAdress)
 
                     if(consumerCoordinates.error){
                         return {error: consumerCoordinates.error}

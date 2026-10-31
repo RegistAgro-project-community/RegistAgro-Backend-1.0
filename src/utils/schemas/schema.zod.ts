@@ -1,13 +1,14 @@
-import z, { email } from "zod";
+import z from "zod";
 
-export const signupSchema = z.object({
-    name: z.string().trim().min(3, "Nome inválido").max(50, "Nome muito extenso"),
+export const signupSchema = z.strictObject({
+    captchaToken: z.string().optional(),
+    name: z.string().trim().min(3, "Nome inválido").max(50, "Nome muito extenso").regex(/^[\p{L}\s]+$/u, "Nome inválido"),
     email: z.string().trim().email({message: "Email inválido"}),
-    phone: z.string().trim().min(9, "Número inválido").max(12, "O número deve conter 12 digito no máximo"),
+    phone: z.string().trim().regex(/^\+?[0-9]{9,12}$/, "Número inválido"),
     adress: z.string().trim().min(3, "Endereço inválido"),
     province: z.string().trim(),
-    pass1: z.string().min(8, "A senha deve conter 8 caracteres no mínimo").trim(),
-    pass2: z.string().trim().min(8, "A senha deve conter 8 digitos no minimo")
+    pass1: z.string().min(8, "A senha deve conter 8 caracteres no mínimo").max(128).regex(/(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&#^()_+={}\[\]:;"'<>,.?/\\|`~-])/, "A senha deve conter maiúscula, número e símbolo"),
+    pass2: z.string().min(8, "A senha deve conter 8 digitos no minimo").max(128)
 }).superRefine((data, ctx) =>{
     if(data.province != "Luanda" && data.province != "Bengo"){
         ctx.addIssue({

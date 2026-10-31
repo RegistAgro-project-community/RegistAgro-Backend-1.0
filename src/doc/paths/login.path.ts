@@ -26,7 +26,10 @@ export const loginPath = {
             },
             responses: {
                 400: {description: "Bad Request"},
-                200: {description: "OK"}
+                200: {
+                    description: "Login efetuado",
+                    content: { "application/json": { schema: { $ref: "#/components/schemas/TokenPair" } } }
+                }
             }
         }
     }

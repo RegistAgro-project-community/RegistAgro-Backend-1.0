@@ -1,7 +1,7 @@
 import type { Response } from "express";
 
-export function ruleValidation(rule: string | string[], res: Response){
-    if(rule != "consumer" && rule != "carrier"){
+export function ruleValidation(rule: string | string[], res: Response, allowedRules: string[] = ["consumer", "carrier"]){
+    if(!allowedRules.includes(String(rule))){
         return true
     }
 

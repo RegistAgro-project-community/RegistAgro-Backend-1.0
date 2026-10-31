@@ -1,0 +1,10 @@
+.env
+.env.*
+!.env.example
+.git
+generated
+coverage
+dist
+node_modules
+registagro_pgdata
+tests

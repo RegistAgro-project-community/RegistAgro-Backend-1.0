@@ -13,7 +13,7 @@ services:
       - ./registagro_pgdata:/var/lib/postgresql/data
   
   redis:
-    container_name: RegistAgroRedis
+    container_name: RegistAgro_Redis
     image: redis:8.4.0
     ports:
       - "6379:6379"

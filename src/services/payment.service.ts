@@ -6,11 +6,13 @@ import { reduceStock } from "../utils/orderPrice.js"
 interface PaymentResult {
     reference?: String
     error?: String
+    unavailable?: boolean
 }
 
 interface ReleasePayment {
     error?: string
     success: boolean
+    unavailable?: boolean
     data?: {
         reference: number
         total: string
@@ -22,7 +24,10 @@ interface ReleasePayment {
 }
 
 export class Payments {
+    static isSimulationAllowed(): boolean { return process.env.NODE_ENV !== "production" }
+
     async create(orderId: string, transportValue: number, productValue: number, registagroValue: number, farmValue: number, total: number): Promise<PaymentResult>{
+        if (!Payments.isSimulationAllowed()) return { unavailable: true, error: "Gateway de pagamento real não configurado" }
         try {
             const isPaid = await prisma.payments.findFirst({
                 where: {
@@ -67,6 +72,7 @@ export class Payments {
     }
 
     async confirmPayment(userId: string, reference: string){
+        if (!Payments.isSimulationAllowed()) return { unavailable: true, error: "Gateway de pagamento real não configurado" }
         try {
             const userRow = await prisma.consumers.findFirst({
                 where: {
@@ -204,6 +210,7 @@ export class Payments {
     }
 
     async releasePayment(orderId: string): Promise<ReleasePayment>{
+        if (!Payments.isSimulationAllowed()) return { success: false, unavailable: true, error: "Gateway de pagamento real não configurado" }
         try {
             const paymentData = await prisma.transport_requests.findFirst({
                 where: {orderId: orderId},

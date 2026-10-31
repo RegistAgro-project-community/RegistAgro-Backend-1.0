@@ -46,7 +46,9 @@ class TransportController {
             return res.status(400).json({error: "O campo data não foi enviado"})
         }
 
-        const jsonData = JSON.parse(req.body["data"])
+        let jsonData: unknown
+        try { jsonData = JSON.parse(req.body["data"]) }
+        catch { return res.status(400).json({ error: "Campo data inválido" }) }
 
         try {
             const { brand, plate, category, capacity, unit } = createVehiclesSchema.parse(jsonData)

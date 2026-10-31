@@ -1,7 +1,7 @@
 import z from "zod";
 
-export const updateUser = z.object({
-    name: z.string({message: "Chave name esperada e não foi recebido"}).trim().min(3, "Nome muito curto").max(50, "Nome muito extenso"),
+export const updateUser = z.strictObject({
+    name: z.string({message: "Chave name esperada e não foi recebido"}).trim().min(3, "Nome muito curto").max(50, "Nome muito extenso").regex(/^[\p{L}\s]+$/u, "Nome inválido"),
     adress: z.string({message: "Chave adress esperada e não foi recebido"}).trim().min(3, "Endereço inválido"),
     province: z.string({message: "Chave province esperada e não foi recebido"}).trim()
 }).superRefine((data, ctx) => {

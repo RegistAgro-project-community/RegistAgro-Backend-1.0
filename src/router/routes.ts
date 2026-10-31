@@ -5,7 +5,7 @@ import { authorization } from "../middlewares/authorization.js";
 import productsController from "../controllers/products.controller.js";
 import usersController from "../controllers/users.controller.js";
 import ordersController from "../controllers/orders.controller.js";
-import { healthyRoute } from "../controllers/healthy.controller.js";
+import { healthyRoute, healthRoute, readyRoute } from "../controllers/healthy.controller.js";
 import companyController from "../controllers/company.controller.js";
 import paymentController from "../controllers/payment.controller.js";
 import transportController from "../controllers/transport.controller.js";
@@ -13,11 +13,30 @@ import { permission } from "../middlewares/permision.js";
 import { validAccount } from "../middlewares/validAccount.js";
 import locationController from "../controllers/location.controller.js";
 import flowController from "../controllers/flow.controller.js";
+import { authLimiter, paymentLimiter, refreshLimiter } from "../config/rate-limiting.js";
+import { codeParamSchema, idParamSchema, nifParamSchema, ruleParamSchema, transportParamSchema } from "../utils/schemas/params.zod.js";
+
+function validateParam(name: string, schema: { safeParse(value: unknown): { success: boolean } }) {
+    return (req: import("express").Request, res: import("express").Response, next: import("express").NextFunction, value: string) => {
+        if (!schema.safeParse({ [name]: value }).success) {
+            return res.status(400).json({ error: "Parâmetro inválido" });
+        }
+        next();
+    };
+}
 
 const router = Router()
 
+router.param("id", validateParam("id", idParamSchema));
+router.param("rule", validateParam("rule", ruleParamSchema));
+router.param("transport", validateParam("transport", transportParamSchema));
+router.param("nif", validateParam("nif", nifParamSchema));
+router.param("code", validateParam("code", codeParamSchema));
+
 //Healthy
 router.get('/', healthyRoute)
+router.get('/health', healthRoute)
+router.get('/ready', readyRoute)
 
 //Farms Companies
 router.get('/companies/get', companyController.getCompanies)
@@ -26,12 +45,15 @@ router.get('/companies/get', companyController.getCompanies)
 router.get('/token', auth, authController.verifyToken)
 
 //Auth
-router.post('/auth/signup/:rule', authController.signup)
-router.get('/auth/signup/verify/:code', authController.verifyCode)
-router.get('/auth/signup/nif/:nif', authController.verifyNif)
+router.post('/auth/signup/:rule', authLimiter, authController.signup)
+router.get('/auth/signup/verify/:code', authLimiter, authController.verifyCode)
+router.post('/auth/signup/verify', authLimiter, authController.verifyCode)
+router.get('/auth/signup/nif/:nif', authLimiter, authController.verifyNif)
 router.post('/auth/farm/signup', auth, authorization("farm", "create"), authController.createFarmPass)
-router.post('/auth/farm/login', authController.farmSignIn)
-router.post('/auth/login/:rule', authController.login)
+router.post('/auth/farm/login', authLimiter, authController.farmSignIn)
+router.post('/auth/login/:rule', authLimiter, authController.login)
+router.post('/auth/refresh', refreshLimiter, authController.refresh)
+router.post('/auth/logout', refreshLimiter, authController.logout)
 
 //Products
 router.post('/products/create', auth, validAccount(), authorization("farm", "create"), productsController.create)
@@ -52,7 +74,7 @@ router.get('/users/profile', auth, validAccount(), usersController.profile)
 
 //Orders
 router.post('/orders/create/farm/:id', auth, validAccount(), authorization("consumer", "create"), ordersController.create)
-router.patch('/orders/payment/confirm', auth, validAccount(), authorization("consumer", "update"), paymentController.confirm)
+router.patch('/orders/payment/confirm', paymentLimiter, auth, validAccount(), authorization("consumer", "update"), paymentController.confirm)
 router.get('/orders/farms/order/get', auth, validAccount(), authorization("farm", "read"), permission("farm"), ordersController.viewsAll)
 router.patch('/orders/accept/order/:id', auth, validAccount(), authorization("farm", "update"), ordersController.accept)
 router.patch('/orders/reject/order/:id', auth, validAccount(), authorization("farm", "update"), ordersController.reject)

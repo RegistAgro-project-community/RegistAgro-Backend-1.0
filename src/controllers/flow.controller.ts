@@ -50,6 +50,9 @@ class FlowController {
         try {
             const completeResult = await flowModel.completeOrder(userId, orderId)
 
+            if("unavailable" in completeResult && completeResult.unavailable){
+                return res.status(503).json({error: "Gateway de pagamento real não configurado"})
+            }
             if(completeResult.error){
                 return res.status(400).json(completeResult)
             }else if(completeResult.info){

@@ -5,9 +5,10 @@ import 'dotenv/config.js'
 import path from "node:path";
 import { image } from "../utils/image.js";
 import { verifyStock } from "../utils/verifyStock.js";
-import { getAdress } from "../services/location.service.js";
+import { GeoapifyGeocoder, type Geocoder } from "../services/geocoder.js";
 
 export class TransportModel {
+    constructor(private readonly geocoder: Geocoder = new GeoapifyGeocoder()) {}
     async showCarriers(userId: string, transport: VehiclesType){
         try {
             const farmRow = await prisma.farms.findFirst({
@@ -156,7 +157,7 @@ export class TransportModel {
                         }
                     }
 
-                    const imgEnv = process.env.ENV! == 'dev' ? "http://localhost:5500" : "https://api-registagro.onrender.com"
+                    const imgEnv = process.env.ENV! == 'dev' ? "https://9b50bc2f-5500.uks1.devtunnels.ms" : "https://api-registagro.onrender.com"
 
                     const urlImg = `${imgEnv}/upload/vehicles/${uploadResult.filename}`
 
@@ -206,6 +207,7 @@ export class TransportModel {
             const requestRow = await prisma.transport_requests.findFirst({
                 where: {
                     orderId: orderId,
+                    order: { farmId: farmRow.id },
                     status: {
                         notIn: ["rejeitado", "cancelado"]
                     }
@@ -464,6 +466,7 @@ export class TransportModel {
 
                             return {
                                 id: column.id,
+                                carrierId: column.carrierId,
                                 status: column.status,
                                 delivered_at: column.delivered_at,
                                 start_at: column.start_at,
@@ -543,7 +546,7 @@ export class TransportModel {
                     return {info: "Pedido não encontrado ou inválido"}
                 }
 
-                const isValidCoordinate = await getAdress(latitude, longitude)
+                const isValidCoordinate = await this.geocoder.reverseGeocode(latitude, longitude)
 
                 if(isValidCoordinate.error || !isValidCoordinate.sucess){
                     return {error: isValidCoordinate.error ?? "Coordenadas inválidas"}

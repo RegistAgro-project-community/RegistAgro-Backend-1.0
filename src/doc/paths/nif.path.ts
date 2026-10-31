@@ -12,6 +12,13 @@ export const nifPath = {
                         type: "string",
                         example: "500012345"
                     }
+                },
+                {
+                    name: "x-captcha-token",
+                    in: "header",
+                    required: true,
+                    description: "Token temporário gerado pelo widget Turnstile; não é a Site Key.",
+                    schema: {type: "string"}
                 }
             ],
             responses: {

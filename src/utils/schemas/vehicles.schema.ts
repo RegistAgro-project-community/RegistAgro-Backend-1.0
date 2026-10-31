@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const createVehiclesSchema = z.object({
+export const createVehiclesSchema = z.strictObject({
     brand: z.string({message: "A chave brand foi esperada e não foi enviada"}).trim().min(3, "Marca inválida").max(25, "Marca muito extensa"),
     plate: z.string({message: "A chave plate foi esperada e não foi enviada"}).trim().min(12, "Matrícula inválida").max(12, "Matrícula inválida").toUpperCase(),
     category: z.string({message: "A chave type foi esperada e não foi enviada"}).trim(),
@@ -35,7 +35,7 @@ export const createVehiclesSchema = z.object({
     }
 })
 
-export const hireCarrierSchema = z.object({
+export const hireCarrierSchema = z.strictObject({
     orderId: z.string({message: "A chave orderId foi esperada e não foi enviada"}).trim(),
     vehicleId: z.string({message: "A chave vehicleId foi esperada e não foi enviada"}).trim()
 }).superRefine((data, ctx) =>{

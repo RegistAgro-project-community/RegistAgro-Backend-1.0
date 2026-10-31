@@ -5,12 +5,14 @@ import { paymentSplit } from "../utils/paymentSplit.js";
 import { Payments } from "../services/payment.service.js";
 import { orderPrice } from "../utils/orderPrice.js";
 import { verifyStock } from "../utils/verifyStock.js";
-import { getAltLong } from "../services/location.service.js";
+import { GeoapifyGeocoder, type Geocoder } from "../services/geocoder.js";
 
 const paymentModel = new Payments()
 
 export class OrdersModel {
+    constructor(private readonly geocoder: Geocoder = new GeoapifyGeocoder()) {}
     async create(userId: string, farmId: string, name: string, qtd: number, unit: Stock, delivery: string | undefined){
+        if (!Payments.isSimulationAllowed()) return { unavailable: true, error: "Gateway de pagamento real não configurado" }
         try {
             const userRow = await prisma.users.findFirst({
                 where: {
@@ -112,7 +114,7 @@ export class OrdersModel {
                     })
 
                     //Validar endereço de entrega caso usuário adicionou
-                    const isValidAdress = delivery ? await getAltLong(delivery!) : null
+                    const isValidAdress = delivery ? await this.geocoder.geocode(delivery) : null
 
                     if(isValidAdress && isValidAdress.error){
                         return {error: isValidAdress.error}

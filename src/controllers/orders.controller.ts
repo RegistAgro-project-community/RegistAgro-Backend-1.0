@@ -13,13 +13,14 @@ class OrdersController {
         const farmId = req.params["id"]
 
         try {
-            const { name, qtd, unit } = createOrderSchema.parse(req.body)
-
-            const delivery = req.body["delivery"] as string
+            const { name, qtd, unit, delivery } = createOrderSchema.parse(req.body)
 
             try {
                 const createResult = await ordersModel.create(userId!, farmId as string, name, qtd, unit as Stock, delivery)
 
+                if("unavailable" in createResult && createResult.unavailable){
+                    return res.status(503).json({error: "Gateway de pagamento real não configurado"})
+                }
                 if(createResult.info){
                     return res.status(404).json(createResult)
                 }else if(createResult.error){

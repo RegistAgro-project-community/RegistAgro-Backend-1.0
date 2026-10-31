@@ -31,6 +31,7 @@ enum Rule {
   farm
   consumer
   carrier
+  admin
 }
 
 enum Deleted {
@@ -54,8 +55,22 @@ model Users {
   farms      Farms[]
   consumers  Consumers[]
   carriers   Carriers[]
+  refreshSessions refresh_sessions[]
 
   @@map("users")
+}
+
+model refresh_sessions {
+  id        String    @id @default(uuid())
+  userId    String
+  user      Users     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, expiresAt])
+  @@map("refresh_sessions")
 }
 
 model Farms {
@@ -123,6 +138,8 @@ model Products {
   status      Deleted      @default(active)
   orders      Orders[]
 
+  @@index([farmId, type])
+  @@index([status, created_at])
   @@map("products")
 }
 
@@ -156,6 +173,9 @@ model Orders {
   requests_transport Transport_requests[]
   location           Location[]
 
+  @@index([farmId, status])
+  @@index([consumerId, status])
+  @@index([created_at])
   @@map("orders")
 }
 
@@ -227,6 +247,9 @@ model Transport_requests {
   start_at     DateTime?
   delivered_at DateTime?
 
+  @@index([carrierId, status])
+  @@index([orderId])
+  @@index([vehicleId])
   @@map("transport_requests")
 }
 
@@ -261,5 +284,7 @@ model Location {
   update_at DateTime?
   active    Boolean  @default(true)
 
+  @@index([orderId, time])
+  @@index([carrierId, time])
   @@map("location")
 }

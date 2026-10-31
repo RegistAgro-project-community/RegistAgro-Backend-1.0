@@ -16,6 +16,9 @@ class ConfirmPayment {
             try {
                 const confirmPaymentResult = await paymentService.confirmPayment(userId!, reference)
 
+                if("unavailable" in confirmPaymentResult && confirmPaymentResult.unavailable){
+                    return res.status(503).json({error: "Gateway de pagamento real não configurado"})
+                }
                 if(confirmPaymentResult.error){
                     return res.status(400).json(confirmPaymentResult)
                 }

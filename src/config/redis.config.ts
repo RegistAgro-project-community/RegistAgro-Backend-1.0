@@ -1,26 +1,17 @@
 import { createClient } from 'redis'
 import 'dotenv/config'
+import { ConsoleLogger } from "../services/logger.js"
 
-    const redisClient = createClient({
-        username: process.env.REDIS_USER!,
-        password: process.env.REDIS_PASS!,
-        socket: {
-            host: 'redis-15935.crce214.us-east-1-3.ec2.cloud.redislabs.com',
-            port: 15935
-        }
-    });
+    const logger = new ConsoleLogger()
+    const redisClient = createClient(process.env.REDIS_URL ? { url: process.env.REDIS_URL } : {})
 
-    redisClient.on('error', err => console.error('Redis Client Error'))
+    redisClient.on('error', () => logger.error("redis.connection_error"))
 
     try {
         await redisClient.connect()
         
-        await redisClient.set('foo', 'bar')
-        const result = await redisClient.get('foo')
-        console.log(result)  
-        
-    } catch (error) {
-        console.error("Erro no Redis Client")
+    } catch {
+        logger.error("redis.connection_unavailable")
     }
 
 export { redisClient }

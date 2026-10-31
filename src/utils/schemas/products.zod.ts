@@ -1,6 +1,6 @@
 import z from "zod";
 
-export const createSchema = z.object({
+export const createSchema = z.strictObject({
     name: z.string({message: "Chave name esperada e não foi recebido"}).trim().min(3, "Nome muito curto").max(50, "Nome muito extenso"),
     description: z.string({message: "Chave description esperada e não foi recebido"}).trim().min(5, "Descrição muito curta"),
     price: z.number({message: "Chave price esperada e não foi recebido"}),
@@ -35,7 +35,7 @@ export const createSchema = z.object({
     }
 })
 
-export const updateSchema = z.object({
+export const updateSchema = z.strictObject({
     name: z.string({message: "Chave name esperada e não foi recebido"}).trim().min(3, "Nome muito curto").max(50, "Nome muito extenso"),
     description: z.string({message: "Chave description esperada e não foi recebido"}).trim().min(5, "Descrição muito curta"),
     price: z.number({message: "Chave price esperada e não foi recebido"}),

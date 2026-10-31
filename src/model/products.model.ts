@@ -5,16 +5,14 @@ import { notFound } from "../errors/notFound.js";
 import type { UploadedFile } from 'express-fileupload';
 import { image } from "../utils/image.js";
 import 'dotenv/config.js'
-import { DataValidate } from "../utils/data.validate.js";
+import { normalizeName } from "../utils/normalize-name.js";
+import { cacheService } from "../services/cache.service.js";
+
+const PUBLIC_CATALOG_CACHE_KEY = "catalog:consumer:v1";
 
 export class ProductsModel {
     async create(img: UploadedFile | undefined,userId: string, name: string, description: string, price: number, stock: number, unit: Stock, type: ProductsType, transport: VehiclesType){
-        const validData = new DataValidate()
-        const validName = validData.name(name)
-
-        if(!validName){
-            return {error: "Nome do produto inválido"}
-        }
+        const normalizedName = normalizeName(name)
 
         if(stock <= 0){
             return {error: "Estoque inválido"}
@@ -84,7 +82,7 @@ export class ProductsModel {
                         }
                     }
 
-                    const imgEnv = process.env.ENV! == 'dev' ? "http://localhost:5500" : "https://api-registagro.onrender.com"
+                    const imgEnv = process.env.ENV! == 'dev' ? "https://9b50bc2f-5500.uks1.devtunnels.ms" : "https://api-registagro.onrender.com"
 
                     const urlImg = `${imgEnv}/upload/products/${uploadResult.filename}`
 
@@ -92,7 +90,7 @@ export class ProductsModel {
 
                         await prisma.products.create({
                             data: {
-                                name: name,
+                                name: normalizedName,
                                 description: description,
                                 price: price,
                                 stock: stock,
@@ -103,6 +101,8 @@ export class ProductsModel {
                                 farmId: farmId.id
                             }
                         })
+
+                        await cacheService.invalidate(PUBLIC_CATALOG_CACHE_KEY)
     
                         return {message: "Produto cadastrado com sucesso"}
                     } catch (error) {
@@ -153,7 +153,7 @@ export class ProductsModel {
                     return {error: "Informações inválidas"}
                 }
 
-                const api = process.env.ENV == "dev" ? "http://localhost:5500" : "https://api-registagro.onrender.com"
+                const api = process.env.ENV == "dev" ? "https://9b50bc2f-5500.uks1.devtunnels.ms" : "https://api-registagro.onrender.com"
 
                 const urlImg = `${api}/upload/products/${uploadResult.filename}`
 
@@ -168,6 +168,8 @@ export class ProductsModel {
                             photo: process.env.ENV == 'dev' ? urlImg : uploadResult.filename!
                         }
                     })
+
+                    await cacheService.invalidate(PUBLIC_CATALOG_CACHE_KEY)
     
                     if(!productRow){
                         return {info: "Produto não encontrado"}
@@ -191,12 +193,7 @@ export class ProductsModel {
     }
 
     async update(productId: string, userId: string, name: string, description: string, price: number, stock: number, unit: Stock){
-        const validData = new DataValidate()
-        const validName = validData.name(name)
-
-        if(!validName){
-            return {error: "Nome do produto inválido"}
-        }
+        const normalizedName = normalizeName(name)
 
         if(stock <= 0){
             return {error: "Estoque inválido"}
@@ -235,13 +232,15 @@ export class ProductsModel {
                         status: "active"
                     },
                     data: {
-                        name: name,
+                        name: normalizedName,
                         description: description,
                         price: price,
                         stock: stock,
                         unit: unit
                     }
                 })
+
+                await cacheService.invalidate(PUBLIC_CATALOG_CACHE_KEY)
     
                 if(!productRow){
                     return {info: "Produto não encontrado"}
@@ -525,6 +524,8 @@ export class ProductsModel {
                         status: "inactive"
                     }
                 })
+
+                await cacheService.invalidate(PUBLIC_CATALOG_CACHE_KEY)
     
                 if(!productRow){
                     return {info: "Produto não encontrado"}
@@ -663,7 +664,7 @@ export class ProductsModel {
             }
 
             try {
-                const farmsAndProducts = await prisma.farms.findMany({
+                const farmsAndProducts = await cacheService.getOrSet(PUBLIC_CATALOG_CACHE_KEY, () => prisma.farms.findMany({
                     where: {farm: {status: "active"}},
                     select: {
                         farm: {
@@ -694,7 +695,7 @@ export class ProductsModel {
                             }
                         }
                     }
-                })
+                }))
 
                 const products = farmsAndProducts.filter(key => key.products.length > 0).map(key =>({
                     farm: {

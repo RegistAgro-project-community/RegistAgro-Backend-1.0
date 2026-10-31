@@ -1,6 +1,7 @@
 import { type Request, type Response, type NextFunction } from "express";
 import jwt from 'jsonwebtoken'
 import 'dotenv/config'
+import { authorizationHeaderSchema } from "../utils/schemas/authorization.zod.js";
 
 interface payload{
     userId: string,
@@ -10,11 +11,12 @@ interface payload{
 export function auth(req: Request, res: Response, next: NextFunction){
     const authToken = req.headers.authorization
 
-    if(!authToken){
+    const parsedHeader = authorizationHeaderSchema.safeParse({authorization: authToken});
+    if(!parsedHeader.success){
         return res.status(401).json({error: "Acesso negado"})
     }
 
-    const token = authToken.split(" ")[1] ?? ""
+    const token = parsedHeader.data.authorization.split(/\s+/)[1] ?? ""
 
     try {
         const decoded = jwt.verify(token, process.env.SECRET_KEY!) as payload

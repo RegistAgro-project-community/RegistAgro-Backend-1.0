@@ -1,0 +1,1 @@
+ALTER TYPE "Rule" ADD VALUE IF NOT EXISTS 'admin';

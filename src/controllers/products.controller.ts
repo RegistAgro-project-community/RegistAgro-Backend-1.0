@@ -17,7 +17,9 @@ class ProductController {
             return res.status(400).json({error: "O campo data não foi enviado"})
         }
 
-        const parseData = JSON.parse(req.body['data'])
+        let parseData: unknown
+        try { parseData = JSON.parse(req.body['data']) }
+        catch { return res.status(400).json({ error: "Campo data inválido" }) }
         
         try {
             const { name, description, price, stock, unit, type, transport } = createSchema.parse(parseData)

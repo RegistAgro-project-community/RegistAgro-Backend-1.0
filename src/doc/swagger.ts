@@ -56,6 +56,8 @@ import { getLocationPath } from "./paths/getLocation.path.js"
 import { startFlowPath } from "./paths/startFlow.path.js"
 import { finishFlowPath } from "./paths/finishFlow.path.js"
 import { completeFlowPath } from "./paths/completeFlow.path.js"
+import { sessionPaths, sessionSchemas } from "./paths/session.js"
+import { healthPaths } from "./paths/health.js"
 
 const swaggerOptions = {
   definition: {
@@ -69,8 +71,12 @@ const swaggerOptions = {
 
     servers: [
       {
-        url: "http://localhost:5500",
-        description: "Servidor local"
+        url: "http://localhost",
+        description: "Servidor local via Nginx (porta 80)"
+      },
+      {
+        url: "/",
+        description: "Origem atual via Nginx (porta 80)"
       },
       {
         url: "https://api-registagro.onrender.com",
@@ -91,9 +97,12 @@ const swaggerOptions = {
     ],
 
     paths: {
+      ...healthPaths,
+      ...verifyAcessTokenPath,
       ...getAllCompaniesPath,
       ...signupPath,
       ...verificationCodePath,
+      ...sessionPaths,
       ...nifPath,
       ...farmPassordPath,
       ...farmLoginPath,
@@ -143,6 +152,7 @@ const swaggerOptions = {
         }
       },
       schemas: {
+        ...sessionSchemas,
         ...signupSchema,
         ...farmPassSchema,
         ...farmLoginSchema,

@@ -1,28 +1,27 @@
-import bcrypt from 'bcrypt'
-import 'dotenv/config'
+import type { PasswordHasher } from "./password-hasher.js";
+import { Argon2idHasher } from "./argon2id-hasher.js";
+import { BcryptLegacyHasher } from "./bcrypt-legacy-hasher.js";
 
-class PasswordHash{
-    async generate(pass: string){
-        const salt: number = 10
+/** Compatibility facade used by existing models during the hash migration. */
+export class PasswordHash implements PasswordHasher {
+  private readonly current = new Argon2idHasher();
+  private readonly legacy = new BcryptLegacyHasher();
 
-        try {
-            const createHash = await bcrypt.hash(pass, salt)
-    
-            return createHash
-        } catch (error) {
-            return {error: "Ocorreu um erro ao verificar informações"}
-        }
-    }
+  generate(password: string): Promise<string> {
+    return this.current.hash(password);
+  }
 
-    async compare(hash: string, pass: string){
-        try {
-            const isValidPassword = await bcrypt.compare(pass, hash)
-            return isValidPassword
+  hash(password: string): Promise<string> { return this.generate(password); }
 
-        } catch (error) {
-            return {error: "Ocorreu um erro ao verificar informações"}
-        }
-    }
+  compare(encodedHash: string, password: string): Promise<boolean> {
+    return encodedHash.startsWith("$argon2id$")
+      ? this.current.verify(encodedHash, password)
+      : this.legacy.verify(encodedHash, password);
+  }
+
+  verify(encodedHash: string, password: string): Promise<boolean> { return this.compare(encodedHash, password); }
+
+  needsRehash(encodedHash: string): boolean {
+    return this.current.needsRehash(encodedHash) || this.legacy.needsRehash(encodedHash);
+  }
 }
-
-export { PasswordHash }

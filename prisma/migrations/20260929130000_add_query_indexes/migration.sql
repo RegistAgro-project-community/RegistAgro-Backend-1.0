@@ -1,0 +1,10 @@
+CREATE INDEX IF NOT EXISTS "products_farmId_type_idx" ON "products"("farmId", "type");
+CREATE INDEX IF NOT EXISTS "products_status_created_at_idx" ON "products"("status", "created_at");
+CREATE INDEX IF NOT EXISTS "orders_farmId_status_idx" ON "orders"("farmId", "status");
+CREATE INDEX IF NOT EXISTS "orders_consumerId_status_idx" ON "orders"("consumerId", "status");
+CREATE INDEX IF NOT EXISTS "orders_created_at_idx" ON "orders"("created_at");
+CREATE INDEX IF NOT EXISTS "transport_requests_carrierId_status_idx" ON "transport_requests"("carrierId", "status");
+CREATE INDEX IF NOT EXISTS "transport_requests_orderId_idx" ON "transport_requests"("orderId");
+CREATE INDEX IF NOT EXISTS "transport_requests_vehicleId_idx" ON "transport_requests"("vehicleId");
+CREATE INDEX IF NOT EXISTS "location_orderId_time_idx" ON "location"("orderId", "time");
+CREATE INDEX IF NOT EXISTS "location_carrierId_time_idx" ON "location"("carrierId", "time");

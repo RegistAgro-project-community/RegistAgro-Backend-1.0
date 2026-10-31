@@ -4,22 +4,15 @@ import { prisma } from "../../lib/prisma.js";
 import { notFound } from "../errors/notFound.js";
 import path from "path";
 import { image } from "../utils/image.js";
-import { DataValidate } from "../utils/data.validate.js";
-import { getAltLong } from "../services/location.service.js";
+import { normalizeName } from "../utils/normalize-name.js";
+import { GeoapifyGeocoder, type Geocoder } from "../services/geocoder.js";
 
 export class UsersModel {
+    constructor(private readonly geocoder: Geocoder = new GeoapifyGeocoder()) {}
     async update(userId: string, name: string, adress: string, province: Province){
-        const validData = new DataValidate()
-        const validName = validData.name(name)
+        const normalizedName = normalizeName(name)
 
-        if(!validName){
-            return {
-                valid: false,
-                error: "Nome muito curto"
-            }
-        }
-
-        const isValidAdress = await getAltLong(adress)
+        const isValidAdress = await this.geocoder.geocode(adress)
         
         if(isValidAdress.error){
             return {error: isValidAdress.error}
@@ -38,7 +31,7 @@ export class UsersModel {
                     status: "active"
                 },
                 data: {
-                    name: name,
+                    name: normalizedName,
                     adress: adress,
                     province: province
                 }
@@ -103,7 +96,7 @@ export class UsersModel {
                 }
             }
 
-            const api = process.env.ENV == "dev" ? "http://localhost:5500" : "https://api-registagro.onrender.com"
+            const api = process.env.ENV == "dev" ? "https://9b50bc2f-5500.uks1.devtunnels.ms" : "https://api-registagro.onrender.com"
 
             const profileUrl = `${api}/upload/users/${uploadResult.filename}`
 

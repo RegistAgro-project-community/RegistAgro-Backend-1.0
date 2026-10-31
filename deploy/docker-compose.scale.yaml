@@ -1,0 +1,86 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      PORT: 5500
+      DATABASE_URL: ${DATABASE_URL_DOCKER:?Set DATABASE_URL_DOCKER to the PostgreSQL service address}
+      DATABASE_POOL_MAX: ${DATABASE_POOL_MAX:-5}
+      REDIS_URL: redis://redis:6379
+      SECRET_KEY: ${SECRET_KEY:?Set a newly rotated secret of at least 32 characters}
+      SUPABASE_URL: ${SUPABASE_URL:?Set the Supabase project URL}
+      SUPABASE_KEY: ${SUPABASE_KEY:?Set the Supabase service key}
+      GEOAPIFY_KEY: ${GEOAPIFY_KEY-}
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY-}
+      TURNSTILE_HOSTNAME: ${TURNSTILE_HOSTNAME-}
+      PAYMENT_TRANSPORT_PERCENT: ${PAYMENT_TRANSPORT_PERCENT:?Set payment split policy}
+      PAYMENT_REGISTAGRO_PERCENT: ${PAYMENT_REGISTAGRO_PERCENT:?Set payment split policy}
+      TRUST_PROXY_HOPS: 1
+      CACHE_TTL_SECONDS: ${CACHE_TTL_SECONDS:-30}
+    expose:
+      - "5500"
+    restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "fetch('http://127.0.0.1:5500/ready').then(r => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: build
+    command: ["npx", "prisma", "migrate", "deploy"]
+    environment:
+      NODE_ENV: ${NODE_ENV:-production}
+      DATABASE_URL: ${DATABASE_URL_DOCKER:?Set DATABASE_URL_DOCKER to the PostgreSQL service address}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: "no"
+
+  nginx:
+    image: nginx:1.29-alpine
+    ports:
+      - "80:80"
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  redis:
+    image: redis:8.4.0
+    command: ["redis-server", "--appendonly", "yes"]
+    ports: !reset []
+    volumes:
+      - redis-scale-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+  postgres:
+    ports: !override ["127.0.0.1:5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  redis-scale-data:

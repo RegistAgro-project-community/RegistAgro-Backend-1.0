@@ -1,10 +1,11 @@
 import z from "zod";
 
-export const createOrderSchema = z.object({
+export const createOrderSchema = z.strictObject({
     name: z.string({message: "Chave name esperada e não foi enviada"}).trim().min(3, "Nome muito curto").max
     (50, "Nome muito extenso"),
     qtd: z.number({message: "Chave qtd esperada e não foi enviada"}),
-    unit: z.string({message: "Chave unit esperada e não foi enviada"}).trim()
+    unit: z.string({message: "Chave unit esperada e não foi enviada"}).trim(),
+    delivery: z.string().trim().min(3).max(200)
 }).superRefine((data, ctx) =>{
     if(data.unit != "kg" && data.unit != "t"){
         ctx.addIssue({
@@ -15,7 +16,7 @@ export const createOrderSchema = z.object({
     }
 })
 
-export const updateOrderSchema = z.object({
+export const updateOrderSchema = z.strictObject({
     qtd: z.number({message: "Chave qtd esperada e não foi enviada"}),
     unit: z.string({message: "Chave unit esperada e não foi enviada"}).trim()
 }).superRefine((data, ctx) =>{

@@ -1,4 +1,10 @@
 export const roles = {
+    admin: {
+        consumer: ["create", "read", "update", "delete"],
+        carrier: ["create", "read", "update", "delete"],
+        farm: ["create", "read", "update", "delete"],
+        admin: ["read"],
+    },
     consumer: {
         consumer: [
             "create", "read", "update", "delete"

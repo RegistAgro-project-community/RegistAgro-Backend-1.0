@@ -163,7 +163,7 @@ export class FlowModel {
                     const transaction = await service.releasePayment(orderId)
 
                     if(!transaction.success){
-                        return {error: transaction.error}
+                        return {error: transaction.error, unavailable: transaction.unavailable}
                     }
 
                     await prisma.orders.update({

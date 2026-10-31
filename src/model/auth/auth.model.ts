@@ -1,57 +1,30 @@
 import type { Province, Rule } from "../../../generated/prisma/enums.js"
 import { prisma } from "../../../lib/prisma.js"
-import { redisClient } from "../../config/redis.config.js"
 import { sendEmailWithOTP, verifyOTPCode } from "../../services/email.service.js"
-import { DataValidate } from "../../utils/data.validate.js"
-import { getAltLong } from "../../services/location.service.js"
+import { authTokenService } from "../../services/auth-token.store.js"
+import type { AuthTokenService } from "../../services/auth-token.service.js"
+import { AbstractApiEmailValidator, type EmailDeliverabilityValidator } from "../../services/email-deliverability.js"
+import { GeoapifyGeocoder, type Geocoder } from "../../services/geocoder.js"
 import { PasswordHash } from "../../utils/password.hash.js"
-import jwt from 'jsonwebtoken'
+import type { PasswordHasher } from "../../utils/password-hasher.js"
+import { verifyAndUpgradePassword } from "../../services/authenticate-password.js"
 
 class AuthModel {
+    constructor(
+        private readonly passwordHasher: PasswordHasher = new PasswordHash(),
+        private readonly emailValidator: EmailDeliverabilityValidator = new AbstractApiEmailValidator(),
+        private readonly geocoder: Geocoder = new GeoapifyGeocoder(),
+        private readonly tokenService: AuthTokenService = authTokenService,
+    ) {}
     async signup(name: string, email: string, phone: string, rule: Rule, adress: string, province: Province, pass1: string, pass2: string){
-        const validData = new DataValidate()
-
-        const validNumber = validData.phoneNumber(phone)
-        const validName = validData.name(name)
-        const validEmail = await validData.email(email)
-        const isValidPassword = validData.password(pass1)
-
-        if(!validName){
-            return {
-                valid: false,
-                message: "Nome inválido"
-            }
-        }
-
-        if(pass2 != pass1){
-            return {
-                valid: false,
-                message: "Credencias inválidas"
-            }
-        }
-
-        if(!isValidPassword.valid){
-            return {
-                valid: isValidPassword.valid,
-                error: isValidPassword.error,
-                strong: isValidPassword.strong
-            }
-        }
-        if(!validNumber){
-            return {
-                valid: false,
-                message: "Número de telefone inválido"
-            }  
-
-        }
-        if(!validEmail){ 
+        if(!(await this.emailValidator.isDeliverable(email))){
             return {
                 valid: false,
                 message: "Email inválido"
             }
         }
 
-        const isValidAdress = await getAltLong(adress)
+        const isValidAdress = await this.geocoder.geocode(adress)
         
         if(isValidAdress.error){
             return {error: isValidAdress.error}
@@ -83,11 +56,10 @@ class AuthModel {
             }
 
             try {
-                const hashClass = new PasswordHash()
-                const passHash = await hashClass.generate(pass1)
+                const passHash = await this.passwordHasher.hash(pass1)
 
                 try {
-                    const pendingUserId = await prisma.users.upsert({
+                    await prisma.users.upsert({
                         where: {email: email},
                         create: {
                             name: name,
@@ -96,7 +68,7 @@ class AuthModel {
                             rule: rule,
                             adress: adress,
                             province: province,
-                            password: String(passHash),
+                            password: passHash,
                             profile: "",
                             status: "pendent"
                         },
@@ -106,24 +78,15 @@ class AuthModel {
                             rule: rule,
                             adress: adress,
                             province: province,
-                            password: String(passHash),
+                            password: passHash,
                             status: "pendent"
                         }
                     })
-
-                    //Armazenar o id do usuário pendente
-                    await redisClient.set("pendingUserId", pendingUserId.id)
-
-                    //Gerar código de verificação
-                    //const generate = new VerificationCode()
-                    //const code = generate.generate()
 
                     //Enviar email de verificação
                     const { valid, error } = await sendEmailWithOTP(email)
 
                     if(valid){
-                        await redisClient.set("email", email)
-                        
                         return {
                             valid: valid,
                             message: "Foi enviado um código de verificação no seu email"
@@ -213,18 +176,10 @@ class AuthModel {
                         })
 
                         //Armazenar o id do usuário pendente
-                        await redisClient.set("pendingUserId", pendingUserId.id)
-
-                        //Gerar código de verificação
-                        //const generate = new VerificationCode()
-                        //const code = generate.generate()
-
                         //Enviar email de verificação
-                        const { valid, error } = await sendEmailWithOTP("eucleniocadete@gmail.com")
+                        const { valid, error } = await sendEmailWithOTP(isValidNif.email)
                         
                         if(valid){
-                            await redisClient.set("email", "eucleniocadete@gmail.com")
-                            
                             return {
                                 valid: valid,
                                 message: "Foi enviado um código de verificação no seu email"
@@ -251,17 +206,13 @@ class AuthModel {
         }
     }
 
-    async verifyCode(code: string){
-        const email = await redisClient.get("email")
-
-        const { valid, error } = await verifyOTPCode(email!, code)
+    async verifyCode(email: string, code: string){
+        const { valid, error } = await verifyOTPCode(email, code)
 
         if(valid){
             try {
-                const pedingUserId = await redisClient.get("pendingUserId")
-
                 const userData = await prisma.users.findFirst({
-                    where: {id: String(pedingUserId)}
+                    where: { email, status: "pendent" }
                 })
                 
                 if(!userData){
@@ -313,17 +264,13 @@ class AuthModel {
                         break
                     default:
                         try {
-                            //Criar token de acesso
-                            const token = jwt.sign(
-                                {userId: userData.id, rule: userData.rule},
-                                process.env.SECRET_KEY!,
-                                {expiresIn: "1d"}
-                            )
+                            await prisma.users.update({ where: { id: userData.id }, data: { status: "active" } })
+                            const tokens = await this.tokenService.issue(userData.id, userData.rule)
 
                             return {
                                 valid: true,
                                 message: "Código verificado com sucesso",
-                                token: token,
+                                tokens,
                                 data: {
                                     id: userData.id,
                                     name: userData.name,
@@ -340,17 +287,12 @@ class AuthModel {
                         break
                 }
 
-                //Criar token de acesso
-                const token = jwt.sign(
-                    {userId: userData.id, rule: userData.rule},
-                    process.env.SECRET_KEY!,
-                    {expiresIn: "1d"}
-                )
+                const tokens = await this.tokenService.issue(userData.id, userData.rule)
 
                 return {
                     valid: true,
                     message: "Conta verificada com sucesso",
-                    token: token
+                    tokens
                 }
             } catch (error) {
                 return {error: "Não foi possível validar seus dados"}
@@ -364,49 +306,14 @@ class AuthModel {
     }
 
     async createFarmPass(farmId: string,name: string, email: string, phone: string, province: Province, adress: string, pass1: string, pass2: string){
-        const validData = new DataValidate()
-
-        const validNumber = validData.phoneNumber(phone)
-        const validName = validData.name(name)
-        const validEmail = validData.email(email)
-        const isValidPassword = validData.password(pass1)
-
-        if(!validName){
-            return {
-                valid: false,
-                message: "Nome muito curto"
-            }
-        }
-
-        if(pass2 != pass1){
-            return {
-                valid: false,
-                message: "Credencias inválidas"
-            }
-        }
-
-        if(!isValidPassword.valid){
-            return {
-                valid: isValidPassword.valid,
-                error: isValidPassword.error,
-                strong: isValidPassword.strong
-            }
-        }
-        if(!validNumber){
-            return {
-                valid: false,
-                message: "Número de telefone inválido"
-            }  
-
-        }
-        if(!validEmail){ 
+        if(!(await this.emailValidator.isDeliverable(email))){
             return {
                 valid: false,
                 message: "Email inválido"
             }
         }
 
-        const isValidAdress = await getAltLong(adress)
+        const isValidAdress = await this.geocoder.geocode(adress)
         
         if(isValidAdress.error){
             return {error: isValidAdress.error}
@@ -419,8 +326,7 @@ class AuthModel {
         }
 
         try {
-            const hashClass = new PasswordHash()
-            const hash = await hashClass.generate(pass1)
+            const hash = await this.passwordHasher.hash(pass1)
             
             try {
                 const farmRow = await prisma.users.update({
@@ -431,7 +337,7 @@ class AuthModel {
                         province: province,
                         adress: adress,
                         status: "active",
-                        password: String(hash)
+                        password: hash
                     }
                 })
 
@@ -466,21 +372,17 @@ class AuthModel {
             })
 
             if(userData){
-                const hashClass = new PasswordHash()
-                const verifyPass = await hashClass.compare(userData.password, pass)
+                const verifyPass = await verifyAndUpgradePassword(this.passwordHasher, userData.password, pass, async password => {
+                    await prisma.users.update({where: {id: userData.id}, data: {password}})
+                })
 
                 if(verifyPass){
-                    //Criar token de acesso
-                    const token = jwt.sign(
-                        {userId: userData.id, rule: userData.rule},
-                        process.env.SECRET_KEY!,
-                        {expiresIn: "1d"}
-                    )
+                    const tokens = await this.tokenService.issue(userData.id, userData.rule)
 
                     return {
                         valid: true,
                         message: "Login efetuado com sucesso",
-                        token: token
+                        tokens
                     }
                 }
 
@@ -508,21 +410,17 @@ class AuthModel {
             })
 
             if(userData){
-                const hashClass = new PasswordHash()
-                const verifyPass = await hashClass.compare(userData.password, pass)
+                const verifyPass = await verifyAndUpgradePassword(this.passwordHasher, userData.password, pass, async password => {
+                    await prisma.users.update({where: {id: userData.id}, data: {password}})
+                })
 
                 if(verifyPass){
-                    //Criar token de acesso
-                    const token = jwt.sign(
-                        {userId: userData.id, rule: userData.rule},
-                        process.env.SECRET_KEY!,
-                        {expiresIn: "1d"}
-                    )
+                    const tokens = await this.tokenService.issue(userData.id, userData.rule)
 
                     return {
                         valid: true,
                         message: "Login efetuado com sucesso",
-                        token: token
+                        tokens
                     }
                 }
 
@@ -536,6 +434,14 @@ class AuthModel {
         } catch (error) {
             return {error: "Erro ao efetuar login"}
         }
+    }
+
+    refreshTokens(refreshToken: string) {
+        return this.tokenService.rotate(refreshToken)
+    }
+
+    revokeRefreshToken(refreshToken: string) {
+        return this.tokenService.revoke(refreshToken)
     }
 }
 
